@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'mqtt' => [
+        'host' => env('MQTT_HOST'),
+        'port' => env('MQTT_PORT'),
+        'client_id' => env('MQTT_CLIENT_ID'),
+        'username' => env('MQTT_USERNAME'),
+        'password' => env('MQTT_PASSWORD'),
+        'topic' => env('MQTT_TOPIC'),
+        'use_tls' => env('MQTT_USE_TLS', false),
+    ],
+
 ];
