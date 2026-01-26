@@ -21,7 +21,7 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <small class="text-muted d-block"><i class="fas fa-water"></i> Total Water Usage</small>
-                                <h3 class="mb-0 mt-2">{{ number_format($totalUsage, 2) }} <small style="font-size: 0.6em;">L</small></h3>
+                                <h3 class="mb-0 mt-2">@num($totalUsage*1000) <small style="font-size: 0.6em;">L</small></h3>
                             </div>
                             <div style="font-size: 2.5rem; color: #17a2b8; opacity: 0.2;">
                                 <i class="fas fa-liquid"></i>
@@ -38,7 +38,7 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <small class="text-muted d-block"><i class="fas fa-calendar-day"></i> Today's Usage</small>
-                                <h3 class="mb-0 mt-2">{{ number_format($todayUsage, 2) }} <small style="font-size: 0.6em;">L</small></h3>
+                                <h3 class="mb-0 mt-2">@num($todayUsage*1000) <small style="font-size: 0.6em;">L</small></h3>
                             </div>
                             <div style="font-size: 2.5rem; color: #ffc800; opacity: 0.2;">
                                 <i class="fas fa-sun"></i>
@@ -96,10 +96,10 @@
                                     </td>
                                     <td class="px-4 py-3">{{ $usage['tandon']->building_name ?? '-' }}</td>
                                     <td class="px-4 py-3 text-end">
-                                        <strong>{{ number_format($usage['this_month'], 2) }}</strong>
+                                        <strong>@num($usage['this_month'] * 1000)</strong>
                                     </td>
                                     <td class="px-4 py-3 text-end">
-                                        <strong>{{ number_format($usage['total_usage'], 2) }}</strong>
+                                        <strong>@num($usage['total_usage'] * 1000)</strong>
                                     </td>
                                     <td class="px-4 py-3 text-center">
                                         <div class="btn-group" role="group">
@@ -155,7 +155,7 @@
                                                 </a>
                                             </td>
                                             <td class="px-4 py-3 text-end">
-                                                <strong>{{ number_format($usage->volume_used, 3) }}</strong>
+                                                <strong>@num($usage->volume_used * 1000)</strong>
                                             </td>
                                         </tr>
                                     @empty

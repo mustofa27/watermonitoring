@@ -73,28 +73,28 @@
                             <div class="col-md-6">
                                 <div class="detail-item">
                                     <label class="text-muted small mb-1"><i class="fas fa-expand"></i> Cross Section Area</label>
-                                    <div class="fw-semibold">{{ number_format($tandon->cross_section_area, 4) }} m²</div>
+                                    <div class="fw-semibold">@num($tandon->cross_section_area) m²</div>
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="detail-item">
                                     <label class="text-muted small mb-1"><i class="fas fa-arrows-alt-v"></i> Max Height</label>
-                                    <div class="fw-semibold text-success">{{ number_format($tandon->height_max, 3) }} m</div>
+                                    <div class="fw-semibold text-success">@num($tandon->height_max) m</div>
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="detail-item">
                                     <label class="text-muted small mb-1"><i class="fas fa-level-down-alt"></i> Min Height</label>
-                                    <div class="fw-semibold text-danger">{{ number_format($tandon->height_min, 3) }} m</div>
+                                    <div class="fw-semibold text-danger">@num($tandon->height_min) m</div>
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="detail-item">
                                     <label class="text-muted small mb-1"><i class="fas fa-exclamation-triangle"></i> Warning Height</label>
-                                    <div class="fw-semibold text-warning">{{ number_format($tandon->height_warning, 3) }} m</div>
+                                    <div class="fw-semibold text-warning">@num($tandon->height_warning) m</div>
                                 </div>
                             </div>
 

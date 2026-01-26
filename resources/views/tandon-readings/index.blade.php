@@ -28,7 +28,7 @@
                         <h5 class="mb-0">{{ $tandon->name }}</h5>
                         <small class="text-muted">
                             Type: <strong>{{ $tandon->type }}</strong> | 
-                            Area: <strong>{{ number_format($tandon->cross_section_area, 4) }} m²</strong>
+                            Area: <strong>@num($tandon->cross_section_area) m²</strong>
                         </small>
                     </div>
                 </div>
@@ -65,15 +65,15 @@
                                         <strong>{{ $reading->recorded_at->format('d M Y, H:i') }}</strong>
                                     </td>
                                     <td class="px-4 py-3">
-                                        {{ number_format($reading->water_height, 3) }} m
+                                        @num($reading->water_height) m
                                     </td>
                                     <td class="px-4 py-3">
-                                        {{ number_format($reading->water_volume, 3) }} L
+                                        @num($reading->water_volume * 1000) L
                                     </td>
                                     <td class="px-4 py-3">
                                         @if($reading->water_height >= $tandon->height_max)
                                             <span class="badge bg-danger">High</span>
-                                        @elseif($reading->water_height >= $tandon->height_warning)
+                                        @elseif($reading->water_height <= $tandon->height_warning && $reading->water_height > $tandon->height_min)
                                             <span class="badge bg-warning text-dark">Warning</span>
                                         @elseif($reading->water_height <= $tandon->height_min)
                                             <span class="badge bg-danger">Low</span>

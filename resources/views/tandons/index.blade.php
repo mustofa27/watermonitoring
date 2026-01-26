@@ -52,7 +52,7 @@
                                         <span class="badge bg-secondary">{{ $tandon->type }}</span>
                                     </td>
                                     <td class="px-4 py-3">{{ $tandon->building_name ?? '-' }}</td>
-                                    <td class="px-4 py-3">{{ $tandon->cross_section_area ?? '-' }}</td>
+                                    <td class="px-4 py-3">{{ $tandon->cross_section_area !== null ? num_id($tandon->cross_section_area) : '-' }}</td>
                                     <td class="px-4 py-3">{{ $tandon->parent->name ?? '-' }}</td>
                                     <td class="px-4 py-3 text-center">
                                         <div class="btn-group" role="group">
