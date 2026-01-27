@@ -141,6 +141,17 @@
                         <a class="nav-link text-white" href="{{ route('tandons.index') }}"><i class="fas fa-water"></i> Water Tanks</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link text-white" href="{{ route('alerts.index') }}">
+                            <i class="fas fa-bell"></i> Alerts
+                            @php
+                                $activeAlertsCount = \App\Models\Alert::whereNull('resolved_at')->count();
+                            @endphp
+                            @if($activeAlertsCount > 0)
+                                <span class="badge bg-danger rounded-pill">{{ $activeAlertsCount }}</span>
+                            @endif
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <form method="POST" action="{{ route('logout') }}" class="d-inline">
                             @csrf
                             <button type="submit" class="btn btn-link nav-link text-white"><i class="fas fa-sign-out-alt"></i> Logout</button>
