@@ -156,8 +156,11 @@ class MqttListen extends Command
         $this->info('Starting MQTT loop...');
 
         try {
-            $client->loop(true, true, function () use ($client) {
-                // Process queued publish messages between loop iterations
+            // Use non-blocking loop to process publish queue
+            while (true) {
+                $client->loop(false); // Non-blocking loop
+                
+                // Process queued publish messages
                 while (!empty($this->publishQueue)) {
                     $item = array_shift($this->publishQueue);
                     
@@ -172,7 +175,9 @@ class MqttListen extends Command
                         ]);
                     }
                 }
-            });
+                
+                usleep(100000); // Sleep 100ms between iterations
+            }
         } catch (MqttClientException $e) {
             $this->error('MQTT connection error: '.$e->getMessage());
             Log::error('mqtt.loop_error', [
