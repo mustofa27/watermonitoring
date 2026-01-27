@@ -142,7 +142,25 @@ class MqttListen extends Command
             }
         }, $qos);
 
-        $client->loop(true);
+        try {
+            $client->loop(true);
+        } catch (MqttClientException $e) {
+            $this->error('MQTT connection error: '.$e->getMessage());
+            Log::error('mqtt.loop_error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return self::FAILURE;
+        } catch (\Throwable $e) {
+            $this->error('Unexpected error in MQTT loop: '.$e->getMessage());
+            Log::error('mqtt.unexpected_error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return self::FAILURE;
+        }
 
         return self::SUCCESS;
     }
