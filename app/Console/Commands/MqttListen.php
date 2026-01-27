@@ -52,7 +52,7 @@ class MqttListen extends Command
 
         $this->info("Subscribed to {$topic} with QoS {$qos}");
 
-        $client->subscribe($topic, function (string $topic, string $message) {
+        $client->subscribe($topic, function (string $topic, string $message) use ($client) {
             // Payload adalah plain text nilai water_height
             $height = (float) trim($message);
 
