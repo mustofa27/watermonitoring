@@ -120,6 +120,38 @@
         .table tbody tr:hover {
             background-color: #f8f9fa;
         }
+        
+        /* Pagination Styling */
+        .pagination {
+            margin-bottom: 0;
+        }
+        
+        .pagination .page-link {
+            color: #212529;
+            border-color: #dee2e6;
+            font-family: "Montserrat", sans-serif;
+            font-weight: 600;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .pagination .page-link:hover {
+            color: #000;
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+        }
+        
+        .pagination .page-item.active .page-link {
+            background-color: #ffc800;
+            border-color: #ffc800;
+            color: #000;
+            font-weight: 700;
+        }
+        
+        .pagination .page-item.disabled .page-link {
+            color: #6c757d;
+            background-color: #fff;
+            border-color: #dee2e6;
+        }
     </style>
     
     @yield('styles')
