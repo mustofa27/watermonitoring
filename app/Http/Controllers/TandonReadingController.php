@@ -57,4 +57,19 @@ class TandonReadingController extends Controller
         return redirect()->route('tandon-readings.index', $tandon)
             ->with('success', 'Reading deleted successfully!');
     }
+
+    public function bulkDestroy(Request $request, Tandon $tandon)
+    {
+        $validated = $request->validate([
+            'reading_ids' => 'required|array',
+            'reading_ids.*' => 'exists:tandon_readings,id',
+        ]);
+
+        $deletedCount = TandonReading::whereIn('id', $validated['reading_ids'])
+            ->where('tandon_id', $tandon->id)
+            ->delete();
+
+        return redirect()->route('tandon-readings.index', $tandon)
+            ->with('success', "$deletedCount reading(s) deleted successfully!");
+    }
 }

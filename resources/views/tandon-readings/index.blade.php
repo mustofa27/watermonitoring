@@ -35,6 +35,9 @@
             </div>
             <div class="col-md-6">
                 <div class="text-end">
+                    <button type="button" id="deleteSelectedBtn" class="btn btn-danger" style="display: none;" onclick="deleteSelected()">
+                        <i class="fas fa-trash-alt"></i> Delete Selected (<span id="selectedCount">0</span>)
+                    </button>
                     <a href="{{ route('tandon-readings.create', $tandon) }}" class="btn btn-primary">
                         <i class="fas fa-plus-circle"></i> Add Reading
                     </a>
@@ -51,6 +54,9 @@
                     <table class="table table-hover mb-0">
                         <thead>
                             <tr>
+                                <th class="px-4 py-3" style="width: 50px;">
+                                    <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">
+                                </th>
                                 <th class="px-4 py-3">Recorded At</th>
                                 <th class="px-4 py-3">Water Height</th>
                                 <th class="px-4 py-3">Water Volume</th>
@@ -61,6 +67,9 @@
                         <tbody>
                             @forelse($readings as $reading)
                                 <tr>
+                                    <td class="px-4 py-3 text-center">
+                                        <input type="checkbox" class="reading-checkbox" value="{{ $reading->id }}" onclick="updateSelectedCount()">
+                                    </td>
                                     <td class="px-4 py-3">
                                         <strong>{{ $reading->recorded_at->format('d M Y, H:i') }}</strong>
                                     </td>
@@ -98,7 +107,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-4 py-5 text-center text-muted">
+                                    <td colspan="6" class="px-4 py-5 text-center text-muted">
                                         <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
                                         <p class="mb-0">No readings found. Click "Add Reading" to record the first measurement.</p>
                                     </td>
@@ -119,6 +128,68 @@
 
     <!-- Bootstrap core JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function toggleSelectAll(checkbox) {
+            const checkboxes = document.querySelectorAll('.reading-checkbox');
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            const checkboxes = document.querySelectorAll('.reading-checkbox:checked');
+            const count = checkboxes.length;
+            const deleteBtn = document.getElementById('deleteSelectedBtn');
+            const countSpan = document.getElementById('selectedCount');
+            const selectAllCheckbox = document.getElementById('selectAll');
+            
+            countSpan.textContent = count;
+            deleteBtn.style.display = count > 0 ? 'inline-block' : 'none';
+            
+            // Update select all checkbox state
+            const allCheckboxes = document.querySelectorAll('.reading-checkbox');
+            selectAllCheckbox.checked = allCheckboxes.length > 0 && count === allCheckboxes.length;
+            selectAllCheckbox.indeterminate = count > 0 && count < allCheckboxes.length;
+        }
+
+        function deleteSelected() {
+            const checkboxes = document.querySelectorAll('.reading-checkbox:checked');
+            const ids = Array.from(checkboxes).map(cb => cb.value);
+            
+            if (ids.length === 0) {
+                alert('Please select at least one reading to delete.');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to delete ${ids.length} reading(s)?`)) {
+                return;
+            }
+            
+            // Create form and submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route('tandon-readings.bulk-destroy', $tandon) }}';
+            
+            // Add CSRF token
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = '{{ csrf_token() }}';
+            form.appendChild(csrfInput);
+            
+            // Add reading IDs
+            ids.forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'reading_ids[]';
+                input.value = id;
+                form.appendChild(input);
+            });
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
 
     <style>
         .btn-action {

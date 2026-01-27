@@ -36,4 +36,5 @@ Route::middleware('auth')->group(function () {
     Route::post('/tandons/{tandon}/readings', [TandonReadingController::class, 'store'])->name('tandon-readings.store');
     Route::get('/tandons/{tandon}/readings/{reading}', [TandonReadingController::class, 'show'])->name('tandon-readings.show');
     Route::delete('/tandons/{tandon}/readings/{reading}', [TandonReadingController::class, 'destroy'])->name('tandon-readings.destroy');
+    Route::post('/tandons/{tandon}/readings/bulk-delete', [TandonReadingController::class, 'bulkDestroy'])->name('tandon-readings.bulk-destroy');
 });
