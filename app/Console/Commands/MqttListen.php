@@ -103,46 +103,44 @@ class MqttListen extends Command
                         'triggered_at' => now(),
                     ]);
 
-                    // Queue pump control message instead of publishing directly
+                    // Publish pump activation directly
                     $pumpTopic = $topicParts[0] . '/' . $topicParts[1] . '/water_pump';
-                    $this->publishQueue[] = [
-                        'topic' => $pumpTopic,
-                        'message' => '1',
-                        'context' => [
+                    try {
+                        $client->publish($pumpTopic, '1', 0);
+                        Log::info('mqtt.pump_activated', [
                             'tandon' => $tandon->name,
                             'height' => $height,
+                            'topic' => $pumpTopic,
                             'action' => 'activate',
-                        ],
-                    ];
-
-                    Log::info('mqtt.pump_queued', [
-                        'tandon' => $tandon->name,
-                        'height' => $height,
-                        'topic' => $pumpTopic,
-                        'action' => 'activate',
-                    ]);
+                        ]);
+                    } catch (\Throwable $publishError) {
+                        Log::error('mqtt.pump_publish_failed', [
+                            'topic' => $pumpTopic,
+                            'action' => 'activate',
+                            'error' => $publishError->getMessage(),
+                        ]);
+                    }
                 }
 
                 // Check if water level is above maximum threshold
                 if ($height >= $tandon->height_max) {
-                    // Queue pump deactivation message
+                    // Publish pump deactivation directly
                     $pumpTopic = $topicParts[0] . '/' . $topicParts[1] . '/water_pump';
-                    $this->publishQueue[] = [
-                        'topic' => $pumpTopic,
-                        'message' => '0',
-                        'context' => [
+                    try {
+                        $client->publish($pumpTopic, '0', 0);
+                        Log::info('mqtt.pump_deactivated', [
                             'tandon' => $tandon->name,
                             'height' => $height,
+                            'topic' => $pumpTopic,
                             'action' => 'deactivate',
-                        ],
-                    ];
-
-                    Log::info('mqtt.pump_queued', [
-                        'tandon' => $tandon->name,
-                        'height' => $height,
-                        'topic' => $pumpTopic,
-                        'action' => 'deactivate',
-                    ]);
+                        ]);
+                    } catch (\Throwable $publishError) {
+                        Log::error('mqtt.pump_publish_failed', [
+                            'topic' => $pumpTopic,
+                            'action' => 'deactivate',
+                            'error' => $publishError->getMessage(),
+                        ]);
+                    }
                 }
             } catch (\Throwable $e) {
                 Log::error('mqtt.persist_failed', [
@@ -153,31 +151,10 @@ class MqttListen extends Command
             }
         }, $qos);
 
-        $this->info('Starting MQTT loop...');
+        $this->info('Listening on '.$topic.' with QoS '.$qos);
 
         try {
-            // Use non-blocking loop to process publish queue
-            while (true) {
-                $client->loop(false); // Non-blocking loop
-                
-                // Process queued publish messages
-                while (!empty($this->publishQueue)) {
-                    $item = array_shift($this->publishQueue);
-                    
-                    try {
-                        $client->publish($item['topic'], $item['message'], 0);
-                        Log::info('mqtt.pump_published', $item['context']);
-                    } catch (\Throwable $e) {
-                        Log::error('mqtt.pump_publish_failed', [
-                            'topic' => $item['topic'],
-                            'error' => $e->getMessage(),
-                            'context' => $item['context'],
-                        ]);
-                    }
-                }
-                
-                usleep(100000); // Sleep 100ms between iterations
-            }
+            $client->loop(true); // Blocking loop - process all incoming messages
         } catch (MqttClientException $e) {
             $this->error('MQTT connection error: '.$e->getMessage());
             Log::error('mqtt.loop_error', [
