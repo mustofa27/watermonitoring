@@ -9,6 +9,23 @@ use Illuminate\Http\RedirectResponse;
 
 class TandonController extends Controller
 {
+    /**
+     * Remove all readings and usages for a given Tandon (water tank).
+     *
+     * @param  Tandon  $tandon
+     * @return RedirectResponse
+     */
+    public function truncateData(Tandon $tandon): RedirectResponse
+    {
+        // Delete all readings
+        $tandon->readings()->delete();
+
+        // Delete all usages
+        \App\Models\WaterUsage::where('tandon_id', $tandon->id)->delete();
+
+        return redirect()->route('tandons.show', $tandon)
+            ->with('success', 'All readings and usages for this tank have been deleted.');
+    }
     public function index(): View
     {
         $tandons = Tandon::with('parent')->paginate(10);

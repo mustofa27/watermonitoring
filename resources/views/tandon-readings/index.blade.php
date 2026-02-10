@@ -41,8 +41,8 @@
                     <a href="{{ route('tandon-readings.create', $tandon) }}" class="btn btn-primary">
                         <i class="fas fa-plus-circle"></i> Add Reading
                     </a>
-                    <a href="{{ route('tandons.show', $tandon) }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Back to Water Tank
+                    <a href="{{ route('tandons.index') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Water Tanks List
                     </a>
                 </div>
             </div>

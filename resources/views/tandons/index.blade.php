@@ -72,6 +72,12 @@
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
+                                            <form method="POST" action="{{ route('tandons.truncate-data', $tandon) }}" class="d-inline ms-1">
+                                                @csrf
+                                                <button type="submit" class="btn btn-action btn-warning" onclick="return confirm('Are you sure you want to delete ALL readings and usages for this tank? This cannot be undone.')" title="Delete All Readings & Usages">
+                                                    <i class="fas fa-eraser"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>
