@@ -92,7 +92,15 @@ class MqttListen extends Command
                     'water_volume' => $volume,
                     'recorded_at' => $recordedAt,
                 ]);
-
+                if (!$tandon->parent_id && $height <= $tandon->height_warning) {
+                    Alert::create([
+                        'tandon_id' => $tandon->id,
+                        'type' => 'WARNING_LEVEL',
+                        'message' => "Tandon {$tandon->building_name} water level is running low: {$height} m. Need to be filled soon.",
+                        'triggered_at' => now(),
+                    ]);
+                    return;
+                }
                 // Check if water level is below minimum threshold
                 if ($height <= $tandon->height_min) {
                     // Create alert record
@@ -102,24 +110,34 @@ class MqttListen extends Command
                         'message' => "Tandon {$tandon->building_name} water level is low: {$height} m. If pumps is not running, please check the system.",
                         'triggered_at' => now(),
                     ]);
-
-                    // Publish pump activation directly
-                    $pumpTopic = $topicParts[0] . '/' . $topicParts[1] . '/water_pump';
-                    try {
-                        $client->publish($pumpTopic, '1', 0);
-                        Log::info('mqtt.pump_activated', [
-                            'tandon' => $tandon->name,
-                            'height' => $height,
-                            'topic' => $pumpTopic,
-                            'action' => 'activate',
-                        ]);
-                    } catch (\Throwable $publishError) {
-                        Log::error('mqtt.pump_publish_failed', [
-                            'topic' => $pumpTopic,
-                            'action' => 'activate',
-                            'error' => $publishError->getMessage(),
-                        ]);
-                    }
+                    
+                    // Check parent tank's latest height before activating pump
+                    $parent = $tandon->parent;
+                    if ($parent) {
+                        $parentLatestReading = $parent->readings()->latest('recorded_at')->first();
+                        if ($parentLatestReading && $parentLatestReading->water_height > $parent->height_min) {
+                            $pumpTopic = $topicParts[0] . '/' . $topicParts[1] . '/water_pump';
+                            try {
+                                $client->publish($pumpTopic, '1', 0);
+                                Log::info('mqtt.pump_activated', [
+                                    'tandon' => $tandon->name,
+                                    'height' => $height,
+                                    'topic' => $pumpTopic,
+                                    'action' => 'activate',
+                                    'parent_id' => $parent->id,
+                                    'parent_height' => $parentLatestReading->water_height,
+                                ]);
+                            } catch (\Throwable $publishError) {
+                                Log::error('mqtt.pump_publish_failed', [
+                                    'topic' => $pumpTopic,
+                                    'action' => 'activate',
+                                    'error' => $publishError->getMessage(),
+                                ]);
+                            }
+                        }
+                        // If parent's latest height is not above min, do nothing
+                    } // If no parent, do nothing
+                    return;
                 }
 
                 // Check if water level is above maximum threshold
