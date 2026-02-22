@@ -69,7 +69,7 @@ class MqttListen extends Command
             }
 
             $clientId = $topicParts[1]; // Extract client_id (device_id)
-            $recordedAt = now();
+            $recordedAt = now('Asia/Jakarta');
 
             // Find tandon by client_id (assuming id column or custom device_id column)
             $tandon = Tandon::where('name', $clientId)->first();
@@ -97,7 +97,7 @@ class MqttListen extends Command
                         'tandon_id' => $tandon->id,
                         'type' => 'WARNING_LEVEL',
                         'message' => "Tandon {$tandon->building_name} water level is running low: {$height} m. Need to be filled soon.",
-                        'triggered_at' => now(),
+                        'triggered_at' => now('Asia/Jakarta'),
                     ]);
                     return;
                 }
@@ -108,7 +108,7 @@ class MqttListen extends Command
                         'tandon_id' => $tandon->id,
                         'type' => 'LOW_LEVEL',
                         'message' => "Tandon {$tandon->building_name} water level is low: {$height} m. If pumps is not running, please check the system.",
-                        'triggered_at' => now(),
+                        'triggered_at' => now('Asia/Jakarta'),
                     ]);
                     
                     // Check parent tank's latest height before activating pump

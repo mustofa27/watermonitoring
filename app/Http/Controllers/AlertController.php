@@ -42,7 +42,7 @@ class AlertController extends Controller
         }
 
         $alert->update([
-            'resolved_at' => now(),
+            'resolved_at' => now('Asia/Jakarta'),
         ]);
 
         return redirect()->back()->with('success', 'Alert marked as resolved.');
@@ -67,7 +67,7 @@ class AlertController extends Controller
     public function resolveAll(): RedirectResponse
     {
         $count = Alert::whereNull('resolved_at')->update([
-            'resolved_at' => now(),
+            'resolved_at' => now('Asia/Jakarta'),
         ]);
 
         return redirect()->back()->with('success', "Resolved {$count} active alert(s).");

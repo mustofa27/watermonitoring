@@ -21,7 +21,7 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <small class="text-muted d-block"><i class="fas fa-water"></i> Total Water Usage</small>
-                                <h3 class="mb-0 mt-2">@num($totalUsage*1000) <small style="font-size: 0.6em;">L</small></h3>
+                                <h3 class="mb-0 mt-2">{{ number_format($totalUsage, 2, ',', '.') }} <small style="font-size: 0.6em;">m³</small></h3>
                             </div>
                             <div style="font-size: 2.5rem; color: #17a2b8; opacity: 0.2;">
                                 <i class="fas fa-liquid"></i>
@@ -38,7 +38,7 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <small class="text-muted d-block"><i class="fas fa-calendar-day"></i> Today's Usage</small>
-                                <h3 class="mb-0 mt-2">@num($todayUsage*1000) <small style="font-size: 0.6em;">L</small></h3>
+                                <h3 class="mb-0 mt-2">{{ number_format($todayUsage, 2, ',', '.') }} <small style="font-size: 0.6em;">m³</small></h3>
                             </div>
                             <div style="font-size: 2.5rem; color: #ffc800; opacity: 0.2;">
                                 <i class="fas fa-sun"></i>
@@ -80,8 +80,9 @@
                                 <th class="px-4 py-3" style="color: #ffc800;">Water Tank Name</th>
                                 <th class="px-4 py-3" style="color: #ffc800;">Type</th>
                                 <th class="px-4 py-3" style="color: #ffc800;">Building</th>
-                                <th class="px-4 py-3 text-end" style="color: #ffc800;">This Month (L)</th>
-                                <th class="px-4 py-3 text-end" style="color: #ffc800;">Total Usage (L)</th>
+                                <th class="px-4 py-3 text-center" style="color: #ffc800;">Level (%)</th>
+                                <th class="px-4 py-3 text-end" style="color: #ffc800;">This Month (m³)</th>
+                                <th class="px-4 py-3 text-end" style="color: #ffc800;">Total Usage (m³)</th>
                                 <th class="px-4 py-3 text-center" style="color: #ffc800;">Actions</th>
                             </tr>
                         </thead>
@@ -95,11 +96,29 @@
                                         <span class="badge bg-secondary">{{ $usage['tandon']->type }}</span>
                                     </td>
                                     <td class="px-4 py-3">{{ $usage['tandon']->building_name ?? '-' }}</td>
-                                    <td class="px-4 py-3 text-end">
-                                        <strong>@num($usage['this_month'] * 1000)</strong>
+                                    <td class="px-4 py-3 text-center">
+                                        @if($usage['height_percent'] !== null)
+                                            <div class="speedometer-wrapper">
+                                                <svg class="tube-svg" width="40" height="70" viewBox="0 0 40 70">
+                                                    <rect x="10" y="5" width="20" height="60" rx="10" fill="#e9ecef" stroke="#ffc800" stroke-width="2" />
+                                                    @php
+                                                        $fillHeight = round(60 * ($usage['height_percent'] / 100));
+                                                        $yFill = 65 - $fillHeight;
+                                                    @endphp
+                                                    <rect x="10" y="{{ $yFill }}" width="20" height="{{ $fillHeight }}" rx="10" fill="#2196f3" opacity="0.7" />
+                                                </svg>
+                                                <div style="font-size: 0.9em; color: #28a745; font-weight: bold;">{{ $usage['height_percent'] }}%</div>
+                                                <div style="font-size: 0.8em; color: #6c757d;">{{ $usage['water_height'] }} m</div>
+                                            </div>
+                                        @else
+                                            <span class="text-muted small">No data</span>
+                                        @endif
                                     </td>
                                     <td class="px-4 py-3 text-end">
-                                        <strong>@num($usage['total_usage'] * 1000)</strong>
+                                        <strong>{{ number_format($usage['this_month'], 2, ',', '.') }}</strong>
+                                    </td>
+                                    <td class="px-4 py-3 text-end">
+                                        <strong>{{ number_format($usage['total_usage'], 2, ',', '.') }}</strong>
                                     </td>
                                     <td class="px-4 py-3 text-center">
                                         <div class="btn-group" role="group">
@@ -197,6 +216,24 @@
     </div>
 
     <style>
+                        .tube-wrapper {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            margin-top: 0.5em;
+                        }
+                        .tube-svg {
+                            margin-bottom: 0.2em;
+                        }
+                .speedometer-wrapper {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    margin-top: 0.5em;
+                }
+                .speedometer {
+                    margin-bottom: 0.2em;
+                }
         .page-header {
             background: linear-gradient(135deg, #212529 0%, #343a40 100%);
             color: white;

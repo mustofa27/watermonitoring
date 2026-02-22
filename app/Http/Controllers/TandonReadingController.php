@@ -30,7 +30,7 @@ class TandonReadingController extends Controller
             'recorded_at' => 'required|date_format:Y-m-d H:i',
         ]);
 
-        $validated['recorded_at'] = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $validated['recorded_at']);
+        $validated['recorded_at'] = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $validated['recorded_at'], 'Asia/Jakarta');
         $tandon->readings()->create($validated);
 
         return redirect()->route('tandon-readings.index', $tandon)

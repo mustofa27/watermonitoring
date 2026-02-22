@@ -18,7 +18,7 @@ class DashboardController extends Controller
         
         // Get water usage statistics
         $totalUsage = WaterUsage::sum('volume_used');
-        $todayUsage = WaterUsage::whereDate('usage_date', now()->toDateString())->sum('volume_used');
+        $todayUsage = WaterUsage::whereDate('usage_date', now('Asia/Jakarta')->toDateString())->sum('volume_used');
         
         // Get recent water usages
         $recentUsages = WaterUsage::with('tandon')
@@ -28,7 +28,7 @@ class DashboardController extends Controller
         
         // Get usage by tandon for the last 30 days
         $last30DaysUsage = WaterUsage::with('tandon')
-            ->where('usage_date', '>=', now()->subDays(30)->toDateString())
+            ->where('usage_date', '>=', now('Asia/Jakarta')->subDays(30)->toDateString())
             ->orderBy('tandon_id')
             ->orderBy('usage_date', 'desc')
             ->get()
@@ -39,14 +39,25 @@ class DashboardController extends Controller
         foreach ($tandons as $tandon) {
             $total = WaterUsage::where('tandon_id', $tandon->id)->sum('volume_used');
             $thisMonth = WaterUsage::where('tandon_id', $tandon->id)
-                ->whereMonth('usage_date', now()->month)
-                ->whereYear('usage_date', now()->year)
+                ->whereMonth('usage_date', now('Asia/Jakarta')->month)
+                ->whereYear('usage_date', now('Asia/Jakarta')->year)
                 ->sum('volume_used');
-            
+
+            // Get latest reading for water height
+            $latestReading = TandonReading::where('tandon_id', $tandon->id)
+                ->orderBy('recorded_at', 'desc')
+                ->first();
+            $heightPercent = null;
+            if ($latestReading && $tandon->height_max > 0) {
+                $heightPercent = round(($latestReading->water_height / $tandon->height_max) * 100);
+            }
+
             $tandonUsage[] = [
                 'tandon' => $tandon,
                 'total_usage' => $total,
                 'this_month' => $thisMonth,
+                'height_percent' => $heightPercent,
+                'water_height' => $latestReading ? $latestReading->water_height : null,
             ];
         }
         
@@ -66,7 +77,7 @@ class DashboardController extends Controller
      */
     private function calculateTodayUsage($tandons): void
     {
-        $today = now()->toDateString();
+        $today = now('Asia/Jakarta')->toDateString();
 
         foreach ($tandons as $tandon) {
             // Get readings for today sorted by time
