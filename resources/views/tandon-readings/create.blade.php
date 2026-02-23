@@ -49,7 +49,7 @@
 
                             <div class="mb-4">
                                 <label for="recorded_at" class="form-label">Recorded At</label>
-                                <input type="text" name="recorded_at" id="recorded_at" value="{{ old('recorded_at', now()->format('Y-m-d H:i')) }}" required class="form-control" placeholder="YYYY-MM-DD HH:mm">
+                                <input type="text" name="recorded_at" id="recorded_at" value="{{ old('recorded_at', now('Asia/Jakarta')->format('Y-m-d H:i')) }}" required class="form-control" placeholder="YYYY-MM-DD HH:mm">
                                 <small class="text-muted d-block mt-1">
                                     <i class="fas fa-info-circle"></i> Format: YYYY-MM-DD HH:mm (e.g., 2026-01-22 14:30)
                                 </small>
