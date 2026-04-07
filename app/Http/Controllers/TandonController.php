@@ -47,7 +47,7 @@ class TandonController extends Controller
         $client = new MqttClient(
             $config['host'],
             (int) $config['port'],
-            ($config['client_id'] ?? 'web_pump_control').'_web_toggle'
+            ($config['client_id_1'])
         );
 
         $settings = (new ConnectionSettings())
