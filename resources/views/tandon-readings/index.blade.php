@@ -48,6 +48,45 @@
             </div>
         </div>
 
+        @php
+            $chartReadings = $readings->getCollection()->sortBy('recorded_at')->values();
+            $chartLabels = $chartReadings->map(fn ($reading) => $reading->recorded_at->format('d M H:i'));
+            $chartHeights = $chartReadings->map(fn ($reading) => round($reading->water_height, 3));
+            $chartVolumes = $chartReadings->map(fn ($reading) => round($reading->water_volume * 1000, 2));
+        @endphp
+
+        <div class="card mb-3">
+            <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-chart-line"></i> Readings History Chart</h5>
+                <small class="text-muted">Showing {{ $chartReadings->count() }} point(s) from current page</small>
+            </div>
+            <div class="card-body">
+                @if($chartReadings->isNotEmpty())
+                    <div class="chart-wrapper">
+                        <canvas id="readingsHistoryChart"></canvas>
+                    </div>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                        <span class="fw-semibold text-muted me-2">Chart Legend:</span>
+                        <span class="legend-dot legend-height"></span>
+                        <span class="legend-text">Water Height (m)</span>
+                        <span class="legend-dot legend-volume"></span>
+                        <span class="legend-text">Water Volume (L)</span>
+                        <span class="legend-line legend-warning"></span>
+                        <span class="legend-text">Warning Threshold</span>
+                        <span class="legend-line legend-min"></span>
+                        <span class="legend-text">Minimum Threshold</span>
+                        <span class="legend-line legend-max"></span>
+                        <span class="legend-text">Maximum Threshold</span>
+                    </div>
+                @else
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-chart-line fa-2x mb-2 d-block"></i>
+                        No data available for chart.
+                    </div>
+                @endif
+            </div>
+        </div>
+
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-body py-3">
                 <div class="d-flex flex-wrap align-items-center gap-2">
@@ -144,8 +183,115 @@
 
     <!-- Bootstrap core JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 
     <script>
+        const chartLabels = @json($chartLabels);
+        const chartHeights = @json($chartHeights);
+        const chartVolumes = @json($chartVolumes);
+
+        if (chartLabels.length > 0) {
+            const ctx = document.getElementById('readingsHistoryChart');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartLabels,
+                    datasets: [
+                        {
+                            label: 'Water Height (m)',
+                            data: chartHeights,
+                            borderColor: '#0d6efd',
+                            backgroundColor: 'rgba(13, 110, 253, 0.15)',
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointHoverRadius: 5,
+                            tension: 0.25,
+                            yAxisID: 'yHeight'
+                        },
+                        {
+                            label: 'Water Volume (L)',
+                            data: chartVolumes,
+                            borderColor: '#198754',
+                            backgroundColor: 'rgba(25, 135, 84, 0.12)',
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointHoverRadius: 5,
+                            tension: 0.25,
+                            yAxisID: 'yVolume'
+                        },
+                        {
+                            label: 'Warning Threshold',
+                            data: Array(chartLabels.length).fill({{ (float) $tandon->height_warning }}),
+                            borderColor: '#ffc107',
+                            borderWidth: 1.5,
+                            borderDash: [6, 4],
+                            pointRadius: 0,
+                            yAxisID: 'yHeight'
+                        },
+                        {
+                            label: 'Minimum Threshold',
+                            data: Array(chartLabels.length).fill({{ (float) $tandon->height_min }}),
+                            borderColor: '#dc3545',
+                            borderWidth: 1.5,
+                            borderDash: [6, 4],
+                            pointRadius: 0,
+                            yAxisID: 'yHeight'
+                        },
+                        {
+                            label: 'Maximum Threshold',
+                            data: Array(chartLabels.length).fill({{ (float) $tandon->height_max }}),
+                            borderColor: '#6610f2',
+                            borderWidth: 1.5,
+                            borderDash: [6, 4],
+                            pointRadius: 0,
+                            yAxisID: 'yHeight'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        yHeight: {
+                            type: 'linear',
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Height (m)'
+                            }
+                        },
+                        yVolume: {
+                            type: 'linear',
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Volume (L)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 25
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
         function toggleSelectAll(checkbox) {
             const checkboxes = document.querySelectorAll('.reading-checkbox');
             checkboxes.forEach(cb => cb.checked = checkbox.checked);
@@ -239,6 +385,44 @@
             font-size: 0.875rem;
             color: #6c757d;
             margin-right: 0.75rem;
+        }
+
+        .chart-wrapper {
+            height: 320px;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            display: inline-block;
+        }
+
+        .legend-height {
+            background-color: #0d6efd;
+        }
+
+        .legend-volume {
+            background-color: #198754;
+        }
+
+        .legend-line {
+            width: 18px;
+            border-top-width: 2px;
+            border-top-style: dashed;
+            display: inline-block;
+        }
+
+        .legend-warning {
+            border-top-color: #ffc107;
+        }
+
+        .legend-min {
+            border-top-color: #dc3545;
+        }
+
+        .legend-max {
+            border-top-color: #6610f2;
         }
     </style>
 @endsection
