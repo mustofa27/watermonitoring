@@ -48,6 +48,22 @@
             </div>
         </div>
 
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body py-3">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <span class="fw-semibold text-muted me-2">Readings Legend:</span>
+                    <span class="badge bg-success">Normal</span>
+                    <span class="legend-text">Between warning and max thresholds</span>
+                    <span class="badge bg-warning text-dark">Warning</span>
+                    <span class="legend-text">Between minimum and warning thresholds</span>
+                    <span class="badge bg-danger">Low</span>
+                    <span class="legend-text">At or below minimum threshold</span>
+                    <span class="badge bg-danger">High</span>
+                    <span class="legend-text">At or above maximum threshold</span>
+                </div>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -217,6 +233,12 @@
         .btn-delete:hover {
             background-color: #c82333;
             color: white;
+        }
+
+        .legend-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-right: 0.75rem;
         }
     </style>
 @endsection
