@@ -97,7 +97,12 @@
                                             </form>
                                             <form method="POST" action="{{ route('tandons.pump-on', $tandon) }}" class="d-inline ms-1">
                                                 @csrf
-                                                <button type="submit" class="btn btn-action btn-pump-on" onclick="return confirm('Turn ON pump for this water tank?')" title="Turn Pump ON">
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-action {{ $tandon->pump_status === 1 ? 'btn-pump-off' : 'btn-pump-on' }}"
+                                                    onclick="return confirm('{{ $tandon->pump_status === 1 ? 'Turn OFF' : 'Turn ON' }} pump for this water tank?')"
+                                                    title="{{ $tandon->pump_status === 1 ? 'Turn Pump OFF' : 'Turn Pump ON' }}"
+                                                >
                                                     <i class="fas fa-power-off"></i>
                                                 </button>
                                             </form>
@@ -180,6 +185,16 @@
 
         .btn-pump-on:hover {
             background-color: #218838;
+            color: white;
+        }
+
+        .btn-pump-off {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-pump-off:hover {
+            background-color: #c82333;
             color: white;
         }
     </style>

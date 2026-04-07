@@ -42,11 +42,12 @@ class TandonController extends Controller
         }
 
         $pumpTopic = $projectCode.'/'.$tandon->name.'/water_pump';
+        $targetStatus = ((int) $tandon->pump_status) === 1 ? 0 : 1;
 
         $client = new MqttClient(
             $config['host'],
             (int) $config['port'],
-            ($config['client_id_1'])
+            ($config['client_id'] ?? 'web_pump_control').'_web_toggle'
         );
 
         $settings = (new ConnectionSettings())
@@ -57,20 +58,23 @@ class TandonController extends Controller
 
         try {
             $client->connect($settings, true);
-            $client->publish($pumpTopic, '1', 0);
+            $client->publish($pumpTopic, (string) $targetStatus, 0);
             $client->disconnect();
 
-            $tandon->update(['pump_status' => 1]);
+            $tandon->update(['pump_status' => $targetStatus]);
 
-            return back()->with('success', "Pump ON command sent for {$tandon->name}.");
+            $statusText = $targetStatus === 1 ? 'ON' : 'OFF';
+
+            return back()->with('success', "Pump {$statusText} command sent for {$tandon->name}.");
         } catch (Throwable $e) {
-            Log::error('mqtt.manual_pump_on_failed', [
+            Log::error('mqtt.manual_pump_toggle_failed', [
                 'tandon_id' => $tandon->id,
                 'topic' => $pumpTopic,
+                'target_status' => $targetStatus,
                 'error' => $e->getMessage(),
             ]);
 
-            return back()->with('error', 'Failed to send pump ON command. Please try again.');
+            return back()->with('error', 'Failed to send pump command. Please try again.');
         }
     }
 

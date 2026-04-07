@@ -141,7 +141,12 @@
                                         <div class="btn-group" role="group">
                                             <form method="POST" action="{{ route('tandons.pump-on', $usage['tandon']) }}" class="d-inline">
                                                 @csrf
-                                                <button type="submit" class="btn btn-action btn-pump-on" title="Turn Pump ON" onclick="return confirm('Turn ON pump for this water tank?')">
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-action {{ $usage['tandon']->pump_status === 1 ? 'btn-pump-off' : 'btn-pump-on' }}"
+                                                    title="{{ $usage['tandon']->pump_status === 1 ? 'Turn Pump OFF' : 'Turn Pump ON' }}"
+                                                    onclick="return confirm('{{ $usage['tandon']->pump_status === 1 ? 'Turn OFF' : 'Turn ON' }} pump for this water tank?')"
+                                                >
                                                     <i class="fas fa-power-off"></i>
                                                 </button>
                                             </form>
@@ -367,6 +372,16 @@
 
         .btn-pump-on:hover {
             background-color: #218838;
+            color: white;
+        }
+
+        .btn-pump-off {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-pump-off:hover {
+            background-color: #c82333;
             color: white;
         }
 
