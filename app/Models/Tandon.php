@@ -17,6 +17,7 @@ class Tandon extends Model
         'height_max',
         'height_min',
         'height_warning',
+        'pump_status',
     ];
 
     protected $casts = [
@@ -24,6 +25,7 @@ class Tandon extends Model
         'height_max' => 'decimal:3',
         'height_min' => 'decimal:3',
         'height_warning' => 'decimal:3',
+        'pump_status' => 'integer',
     ];
 
     public function parent(): BelongsTo

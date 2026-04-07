@@ -6,6 +6,10 @@ use App\Models\Tandon;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
+use PhpMqtt\Client\ConnectionSettings;
+use PhpMqtt\Client\MqttClient;
+use Throwable;
 
 class TandonController extends Controller
 {
@@ -26,6 +30,50 @@ class TandonController extends Controller
         return redirect()->route('tandons.show', $tandon)
             ->with('success', 'All readings and usages for this tank have been deleted.');
     }
+
+    public function pumpOn(Tandon $tandon): RedirectResponse
+    {
+        $config = config('services.mqtt');
+        $baseTopic = (string) ($config['topic'] ?? '');
+        $projectCode = explode('/', $baseTopic)[0] ?? '';
+
+        if ($projectCode === '') {
+            return back()->with('error', 'MQTT topic configuration is invalid.');
+        }
+
+        $pumpTopic = $projectCode.'/'.$tandon->name.'/water_pump';
+
+        $client = new MqttClient(
+            $config['host'],
+            (int) $config['port'],
+            ($config['client_id_1'])
+        );
+
+        $settings = (new ConnectionSettings())
+            ->setUsername($config['username'] ?? null)
+            ->setPassword($config['password'] ?? null)
+            ->setKeepAliveInterval(30)
+            ->setUseTls((bool) ($config['use_tls'] ?? false));
+
+        try {
+            $client->connect($settings, true);
+            $client->publish($pumpTopic, '1', 0);
+            $client->disconnect();
+
+            $tandon->update(['pump_status' => 1]);
+
+            return back()->with('success', "Pump ON command sent for {$tandon->name}.");
+        } catch (Throwable $e) {
+            Log::error('mqtt.manual_pump_on_failed', [
+                'tandon_id' => $tandon->id,
+                'topic' => $pumpTopic,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->with('error', 'Failed to send pump ON command. Please try again.');
+        }
+    }
+
     public function index(): View
     {
         $tandons = Tandon::with('parent')->paginate(10);

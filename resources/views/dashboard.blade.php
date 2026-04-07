@@ -13,6 +13,13 @@
 
     <!-- Main Content -->
     <div class="container mb-5">
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>{{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
         <!-- Statistics Cards -->
         <div class="row mb-4">
             <div class="col-lg-4 mb-3">
@@ -81,6 +88,7 @@
                                 <th class="px-4 py-3" style="color: #ffc800;">Type</th>
                                 <th class="px-4 py-3" style="color: #ffc800;">Building</th>
                                 <th class="px-4 py-3 text-center" style="color: #ffc800;">Level (%)</th>
+                                <th class="px-4 py-3 text-center" style="color: #ffc800;">Pump</th>
                                 <th class="px-4 py-3 text-end" style="color: #ffc800;">This Month (m³)</th>
                                 <th class="px-4 py-3 text-end" style="color: #ffc800;">Total Usage (m³)</th>
                                 <th class="px-4 py-3 text-center" style="color: #ffc800;">Actions</th>
@@ -114,6 +122,15 @@
                                             <span class="text-muted small">No data</span>
                                         @endif
                                     </td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if($usage['tandon']->pump_status === 1)
+                                            <span class="badge bg-success">ON</span>
+                                        @elseif($usage['tandon']->pump_status === 0)
+                                            <span class="badge bg-secondary">OFF</span>
+                                        @else
+                                            <span class="badge bg-light text-dark border">UNKNOWN</span>
+                                        @endif
+                                    </td>
                                     <td class="px-4 py-3 text-end">
                                         <strong>{{ number_format($usage['this_month'], 2, ',', '.') }}</strong>
                                     </td>
@@ -122,6 +139,12 @@
                                     </td>
                                     <td class="px-4 py-3 text-center">
                                         <div class="btn-group" role="group">
+                                            <form method="POST" action="{{ route('tandons.pump-on', $usage['tandon']) }}" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-action btn-pump-on" title="Turn Pump ON" onclick="return confirm('Turn ON pump for this water tank?')">
+                                                    <i class="fas fa-power-off"></i>
+                                                </button>
+                                            </form>
                                             <a href="{{ route('tandon-readings.index', $usage['tandon']) }}" class="btn btn-action btn-readings" title="View Readings">
                                                 <i class="fas fa-chart-line"></i>
                                             </a>
@@ -334,6 +357,16 @@
 
         .btn-readings:hover {
             background-color: #5a6268;
+            color: white;
+        }
+
+        .btn-pump-on {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-pump-on:hover {
+            background-color: #218838;
             color: white;
         }
 

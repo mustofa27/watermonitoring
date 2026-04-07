@@ -39,6 +39,7 @@ return [
         'host' => env('MQTT_HOST'),
         'port' => env('MQTT_PORT'),
         'client_id' => env('MQTT_CLIENT_ID'),
+        'client_id_1' => env('MQTT_CLIENT_ID_1'),
         'username' => env('MQTT_USERNAME'),
         'password' => env('MQTT_PASSWORD'),
         'topic' => env('MQTT_TOPIC'),

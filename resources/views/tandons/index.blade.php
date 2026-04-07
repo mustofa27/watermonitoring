@@ -20,6 +20,13 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>{{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
         <div class="row mb-3">
             <div class="col-md-12 text-end">
                 <a href="{{ route('tandons.create') }}" class="btn btn-primary btn-lg">
@@ -39,6 +46,7 @@
                                 <th class="px-4 py-3">Building</th>
                                 <th class="px-4 py-3">Area (m²)</th>
                                 <th class="px-4 py-3">Parent</th>
+                                <th class="px-4 py-3 text-center">Pump Status</th>
                                 <th class="px-4 py-3 text-center">Actions</th>
                             </tr>
                         </thead>
@@ -54,6 +62,15 @@
                                     <td class="px-4 py-3">{{ $tandon->building_name ?? '-' }}</td>
                                     <td class="px-4 py-3">{{ $tandon->cross_section_area !== null ? num_id($tandon->cross_section_area) : '-' }}</td>
                                     <td class="px-4 py-3">{{ $tandon->parent->name ?? '-' }}</td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if($tandon->pump_status === 1)
+                                            <span class="badge bg-success">ON</span>
+                                        @elseif($tandon->pump_status === 0)
+                                            <span class="badge bg-secondary">OFF</span>
+                                        @else
+                                            <span class="badge bg-light text-dark border">UNKNOWN</span>
+                                        @endif
+                                    </td>
                                     <td class="px-4 py-3 text-center">
                                         <div class="btn-group" role="group">
                                             <a href="{{ route('tandon-readings.index', $tandon) }}" class="btn btn-action btn-readings" title="View Readings">
@@ -78,12 +95,18 @@
                                                     <i class="fas fa-eraser"></i>
                                                 </button>
                                             </form>
+                                            <form method="POST" action="{{ route('tandons.pump-on', $tandon) }}" class="d-inline ms-1">
+                                                @csrf
+                                                <button type="submit" class="btn btn-action btn-pump-on" onclick="return confirm('Turn ON pump for this water tank?')" title="Turn Pump ON">
+                                                    <i class="fas fa-power-off"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-4 py-5 text-center text-muted">
+                                    <td colspan="7" class="px-4 py-5 text-center text-muted">
                                         <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
                                         <p class="mb-0">No water tanks found. Click "Add New Water Tank" to get started.</p>
                                     </td>
@@ -147,6 +170,16 @@
 
         .btn-readings:hover {
             background-color: #138496;
+            color: white;
+        }
+
+        .btn-pump-on {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-pump-on:hover {
+            background-color: #218838;
             color: white;
         }
     </style>

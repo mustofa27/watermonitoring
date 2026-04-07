@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('tandons', TandonController::class);
     // Route to truncate readings and usages for a tank
     Route::post('/tandons/{tandon}/truncate-data', [TandonController::class, 'truncateData'])->name('tandons.truncate-data');
+    Route::post('/tandons/{tandon}/pump-on', [TandonController::class, 'pumpOn'])->name('tandons.pump-on');
     
     // Tandon readings routes
     Route::get('/tandons/{tandon}/readings', [TandonReadingController::class, 'index'])->name('tandon-readings.index');

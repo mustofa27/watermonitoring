@@ -119,6 +119,7 @@ class MqttListen extends Command
                             $pumpTopic = $topicParts[0] . '/' . $topicParts[1] . '/water_pump';
                             try {
                                 $client->publish($pumpTopic, '1', 0);
+                                $this->persistPumpStatus($tandon, 1);
                                 Log::info('mqtt.pump_activated', [
                                     'tandon' => $tandon->name,
                                     'height' => $height,
@@ -146,6 +147,7 @@ class MqttListen extends Command
                     $pumpTopic = $topicParts[0] . '/' . $topicParts[1] . '/water_pump';
                     try {
                         $client->publish($pumpTopic, '0', 0);
+                        $this->persistPumpStatus($tandon, 0);
                         Log::info('mqtt.pump_deactivated', [
                             'tandon' => $tandon->name,
                             'height' => $height,
@@ -192,5 +194,22 @@ class MqttListen extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    private function persistPumpStatus(Tandon $tandon, int $status): void
+    {
+        if ((int) $tandon->pump_status === $status) {
+            return;
+        }
+
+        $before = $tandon->pump_status;
+        $tandon->pump_status = $status;
+        $tandon->save();
+
+        Log::info('mqtt.pump_status_updated', [
+            'tandon' => $tandon->name,
+            'before' => $before,
+            'after' => $status,
+        ]);
     }
 }
