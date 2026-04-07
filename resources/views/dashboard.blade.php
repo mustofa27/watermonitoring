@@ -145,6 +145,58 @@
             </div>
         </div>
 
+        <!-- Water Usage History Chart -->
+        @php
+            $usagesForChart = $recentUsages->sortBy('usage_date')->values();
+            $chartDates = $usagesForChart->pluck('usage_date')->map(fn($d) => $d->format('d M Y'))->unique()->values();
+            $chartTandonNames = $usagesForChart->pluck('tandon.name')->unique()->values();
+            $chartPalette = ['#0d6efd','#198754','#ffc107','#dc3545','#6610f2','#0dcaf0','#fd7e14','#20c997','#d63384','#6c757d'];
+            $chartDatasets = [];
+            foreach ($chartTandonNames as $i => $tandonName) {
+                $dataPoints = [];
+                foreach ($chartDates as $date) {
+                    $match = $usagesForChart->first(fn($u) => $u->tandon->name === $tandonName && $u->usage_date->format('d M Y') === $date);
+                    $dataPoints[] = $match ? round($match->volume_used * 1000, 2) : 0;
+                }
+                $color = $chartPalette[$i % count($chartPalette)];
+                $chartDatasets[] = [
+                    'label'           => $tandonName,
+                    'data'            => $dataPoints,
+                    'backgroundColor' => $color . 'aa',
+                    'borderColor'     => $color,
+                    'borderWidth'     => 1.5,
+                ];
+            }
+        @endphp
+
+        <div class="card mb-4">
+            <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Water Usage History Chart</h5>
+                <small class="text-muted">Last {{ $usagesForChart->count() }} record(s), grouped by date</small>
+            </div>
+            <div class="card-body">
+                @if($usagesForChart->isNotEmpty())
+                    <div style="height: 300px;">
+                        <canvas id="usageHistoryChart"></canvas>
+                    </div>
+                    {{-- Chart Legend --}}
+                    <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                        <span class="fw-semibold text-muted me-2">Legend:</span>
+                        @foreach($chartTandonNames as $i => $tandonName)
+                            @php $legendColor = $chartPalette[$i % count($chartPalette)]; @endphp
+                            <span class="usage-legend-dot" style="background-color: {{ $legendColor }};"></span>
+                            <span class="usage-legend-text">{{ $tandonName }}</span>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-chart-bar fa-2x mb-2 d-block"></i>
+                        No usage records to display.
+                    </div>
+                @endif
+            </div>
+        </div>
+
         <!-- Recent Water Usages -->
         <div class="row">
             <div class="col-lg-8">
@@ -321,5 +373,59 @@
         .table thead th {
             border-bottom: 1px solid #dee2e6;
         }
+
+        .usage-legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 999px;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .usage-legend-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-right: 0.75rem;
+        }
     </style>
+@endsection
+
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script>
+    (function () {
+        const labels   = @json($chartDates);
+        const datasets = @json($chartDatasets);
+
+        if (!labels.length) return;
+
+        new Chart(document.getElementById('usageHistoryChart'), {
+            type: 'bar',
+            data: { labels, datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ` ${ctx.dataset.label}: ${ctx.formattedValue} L`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: false,
+                        ticks: { maxRotation: 35, minRotation: 15 }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Volume Used (L)' }
+                    }
+                }
+            }
+        });
+    })();
+</script>
 @endsection
