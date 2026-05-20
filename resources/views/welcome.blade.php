@@ -410,14 +410,13 @@
                                 $capacityBadge = 'bg-info';
                             }
                         }
-                        $icon = $tandon->type === 'main' ? 'fa-water' : 'fa-building';
+                        $icon = is_null($tandon->parent_id) ? 'fa-water' : 'fa-building';
                     @endphp
                     <div class="col-lg-4 col-sm-6 mb-4">
                         <div class="card h-100">
                             <div class="card-body text-center">
                                 <i class="fas {{ $icon }} fa-4x text-primary mb-3"></i>
-                                <h5 class="card-title">{{ $tandon->name }}</h5>
-                                <p class="text-muted">{{ $tandon->building_name ?? 'Water tank' }}</p>
+                                <h5 class="card-title">{{ $tandon->building_name }}</h5>
                                 <div class="mt-3">
                                     <span class="badge bg-success">Active</span>
                                     @if($capacityPct !== null)
