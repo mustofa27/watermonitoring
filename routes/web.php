@@ -7,9 +7,13 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TandonController;
 use App\Http\Controllers\TandonReadingController;
 use App\Http\Controllers\AuthController;
+use App\Models\Tandon;
 
 Route::get('/', function () {
-    return view('welcome');
+    $tandons = Tandon::with(['readings' => function ($q) {
+        $q->latest('recorded_at')->limit(1);
+    }])->get();
+    return view('welcome', compact('tandons'));
 });
 
 Route::get('/login', [AuthController::class, 'loginForm'])->name('login');

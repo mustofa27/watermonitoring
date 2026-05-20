@@ -394,84 +394,53 @@
                 <h3 class="section-subheading text-muted">Real-time monitoring across Politeknik Negeri Madura facilities</h3>
             </div>
             <div class="row">
-                <div class="col-lg-4 col-sm-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-water fa-4x text-primary mb-3"></i>
-                            <h5 class="card-title">Main Water Tank</h5>
-                            <p class="text-muted">Central distribution system</p>
-                            <div class="mt-3">
-                                <span class="badge bg-success">Active</span>
-                                <span class="badge bg-info">85% Capacity</span>
+                @forelse($tandons as $tandon)
+                    @php
+                        $latestReading = $tandon->readings->first();
+                        $capacityPct = null;
+                        $capacityBadge = 'bg-secondary';
+                        if ($latestReading && $tandon->height_max > $tandon->height_min) {
+                            $capacityPct = round(($latestReading->water_height - $tandon->height_min) / ($tandon->height_max - $tandon->height_min) * 100);
+                            $capacityPct = max(0, min(100, $capacityPct));
+                            if ($capacityPct <= 20) {
+                                $capacityBadge = 'bg-danger';
+                            } elseif ($capacityPct <= 50) {
+                                $capacityBadge = 'bg-warning';
+                            } else {
+                                $capacityBadge = 'bg-info';
+                            }
+                        }
+                        $icon = $tandon->type === 'main' ? 'fa-water' : 'fa-building';
+                    @endphp
+                    <div class="col-lg-4 col-sm-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas {{ $icon }} fa-4x text-primary mb-3"></i>
+                                <h5 class="card-title">{{ $tandon->name }}</h5>
+                                <p class="text-muted">{{ $tandon->building_name ?? 'Water tank' }}</p>
+                                <div class="mt-3">
+                                    <span class="badge bg-success">Active</span>
+                                    @if($capacityPct !== null)
+                                        <span class="badge {{ $capacityBadge }}">{{ $capacityPct }}% Capacity</span>
+                                    @else
+                                        <span class="badge bg-secondary">No data</span>
+                                    @endif
+                                </div>
+                                @if($latestReading)
+                                    <div class="mt-2 small text-muted">
+                                        Height: {{ number_format($latestReading->water_height, 2) }} m
+                                        &nbsp;|&nbsp;
+                                        Volume: {{ number_format($latestReading->water_volume, 2) }} m³
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-lg-4 col-sm-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-university fa-4x text-primary mb-3"></i>
-                            <h5 class="card-title">Engineering Building</h5>
-                            <p class="text-muted">Faculty water distribution</p>
-                            <div class="mt-3">
-                                <span class="badge bg-success">Active</span>
-                                <span class="badge bg-info">72% Capacity</span>
-                            </div>
-                        </div>
+                @empty
+                    <div class="col-12 text-center">
+                        <p class="text-muted">No water tanks found in the database.</p>
                     </div>
-                </div>
-                <div class="col-lg-4 col-sm-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-home fa-4x text-primary mb-3"></i>
-                            <h5 class="card-title">Student Dormitory</h5>
-                            <p class="text-muted">Residential water supply</p>
-                            <div class="mt-3">
-                                <span class="badge bg-success">Active</span>
-                                <span class="badge bg-info">68% Capacity</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-sm-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-microscope fa-4x text-primary mb-3"></i>
-                            <h5 class="card-title">Laboratory Complex</h5>
-                            <p class="text-muted">Research facility supply</p>
-                            <div class="mt-3">
-                                <span class="badge bg-success">Active</span>
-                                <span class="badge bg-info">91% Capacity</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-sm-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-utensils fa-4x text-primary mb-3"></i>
-                            <h5 class="card-title">Cafeteria</h5>
-                            <p class="text-muted">Food service water system</p>
-                            <div class="mt-3">
-                                <span class="badge bg-success">Active</span>
-                                <span class="badge bg-warning">55% Capacity</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-sm-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-book fa-4x text-primary mb-3"></i>
-                            <h5 class="card-title">Library Building</h5>
-                            <p class="text-muted">Academic facility supply</p>
-                            <div class="mt-3">
-                                <span class="badge bg-success">Active</span>
-                                <span class="badge bg-info">78% Capacity</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @endforelse
             </div>
         </div>
     </section>
