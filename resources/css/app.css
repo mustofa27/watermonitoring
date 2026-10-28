@@ -95,6 +95,38 @@ body.wm-app-body {
     color: #fff;
 }
 
+.wm-nav__toggle {
+    display: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: transparent;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 5px;
+    padding: 0;
+}
+
+.wm-nav__toggle span {
+    width: 20px;
+    height: 2px;
+    border-radius: 999px;
+    background: #f7fbf9;
+    display: block;
+}
+
+.wm-nav__menu {
+    display: flex;
+    flex: 1;
+    justify-content: flex-end;
+}
+
+.wm-nav__menu ul {
+    list-style: none;
+}
+
 .wm-nav__alert-dot {
     display: inline-flex;
     align-items: center;
@@ -487,5 +519,52 @@ body.wm-app-body {
     .wm-pagination-controls {
         width: 100%;
         justify-content: space-between;
+    }
+}
+
+@media (max-width: 991px) {
+    .wm-nav .container {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+    }
+
+    .wm-nav__toggle {
+        display: inline-flex;
+        margin-left: auto;
+    }
+
+    .wm-nav__menu {
+        width: 100%;
+        display: none;
+        background: rgba(18, 33, 28, 0.96);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        padding: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    .wm-nav__menu.is-open {
+        display: block;
+    }
+
+    .wm-nav__menu .navbar-nav {
+        align-items: stretch !important;
+        gap: 0.3rem !important;
+    }
+
+    .wm-nav__menu .wm-nav__link {
+        display: block;
+        padding: 0.5rem 0.15rem;
+    }
+
+    .wm-nav__menu .nav-item form {
+        width: 100%;
+    }
+
+    .wm-nav__menu .nav-item .wm-btn {
+        width: 100%;
+        justify-content: center;
     }
 }

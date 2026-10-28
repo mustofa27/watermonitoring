@@ -22,17 +22,19 @@
     <div class="wm-bg-orb wm-bg-orb--one"></div>
     <div class="wm-bg-orb wm-bg-orb--two"></div>
 
-    <nav class="navbar navbar-expand-lg wm-nav sticky-top">
+    <nav class="navbar wm-nav sticky-top" data-nav-root>
         <div class="container">
             <a class="navbar-brand wm-nav__brand" href="{{ route('dashboard') }}">
                 <i class="fas fa-droplet"></i>
                 Water Monitor
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#wm-navbar" aria-controls="wm-navbar" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+            <button class="wm-nav__toggle" type="button" data-nav-toggle aria-controls="wm-navbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
             </button>
-            <div class="collapse navbar-collapse" id="wm-navbar">
-                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+            <div class="wm-nav__menu" id="wm-navbar" data-nav-menu>
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2 mb-0">
                     <li class="nav-item">
                         <a class="nav-link wm-nav__link" href="{{ route('dashboard') }}">Dashboard</a>
                     </li>

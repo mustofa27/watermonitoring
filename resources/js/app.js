@@ -49,6 +49,28 @@ document.querySelectorAll('[data-table-shell]').forEach((shell) => {
 			});
 			syncTableSelection(shell);
 		});
+
+		document.querySelectorAll('[data-nav-root]').forEach((navRoot) => {
+			const button = navRoot.querySelector('[data-nav-toggle]');
+			const menu = navRoot.querySelector('[data-nav-menu]');
+
+			if (!button || !menu) {
+				return;
+			}
+
+			button.addEventListener('click', () => {
+				const willOpen = !menu.classList.contains('is-open');
+				menu.classList.toggle('is-open', willOpen);
+				button.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+			});
+
+			menu.querySelectorAll('a').forEach((link) => {
+				link.addEventListener('click', () => {
+					menu.classList.remove('is-open');
+					button.setAttribute('aria-expanded', 'false');
+				});
+			});
+		});
 	}
 
 	checkboxes.forEach((item) => {
