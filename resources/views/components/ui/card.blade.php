@@ -2,6 +2,7 @@
     'title' => null,
     'icon' => null,
     'subtitle' => null,
+    'padded' => true,
 ])
 
 <section {{ $attributes->class(['wm-card']) }}>
@@ -20,12 +21,12 @@
             </div>
 
             @isset($actions)
-                <div class="wm-card__actions">{{ $actions }}</div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">{{ $actions }}</div>
             @endisset
         </header>
     @endif
 
-    <div class="wm-card__body">
+    <div @class(['wm-card__body', 'is-flush' => !$padded])>
         {{ $slot }}
     </div>
 </section>

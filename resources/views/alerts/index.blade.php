@@ -34,7 +34,7 @@
                                         <strong>{{ $alert->tandon->name }}</strong>
                                     </div>
                                     <p class="mb-1">{{ $alert->message }}</p>
-                                    <small class="text-muted">{{ $alert->triggered_at->format('d M Y, H:i:s') }} ({{ $alert->triggered_at->diffForHumans() }})</small>
+                                    <small class="text-muted">{{ $alert->triggered_at->format('d M Y, H:i:s') }} ({{ $alert->triggeredInstant()->diffForHumans() }})</small>
                                 </div>
                                 <div class="wm-table-actions">
                                     <a href="{{ route('alerts.show', $alert) }}" class="btn btn-sm btn-outline-info" title="View Details"><i class="fas fa-eye"></i></a>
@@ -55,7 +55,7 @@
             </div>
         @endif
 
-        <x-ui.card title="Alert History" icon="fa-history">
+        <x-ui.card title="Alert History" icon="fa-history" :padded="false">
             <x-ui.data-table
                 id="alerts-table"
                 :bulk-action="route('alerts.bulk-action')"
@@ -83,7 +83,7 @@
                             </td>
                             <td><a href="{{ route('tandons.show', $alert->tandon) }}">{{ $alert->tandon->name }}</a></td>
                             <td>{{ Str::limit($alert->message, 70) }}</td>
-                            <td><small>{{ $alert->triggered_at->format('d M Y, H:i') }}</small></td>
+                            <td class="text-nowrap"><small>{{ $alert->triggered_at->format('d M Y, H:i') }}</small></td>
                             <td>
                                 @if($alert->resolved_at)
                                     <x-ui.status-badge tone="success">Resolved</x-ui.status-badge>

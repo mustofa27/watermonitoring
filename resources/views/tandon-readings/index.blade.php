@@ -41,7 +41,7 @@
             @endif
         </x-ui.card>
 
-        <x-ui.card title="Readings Log" icon="fa-table-list">
+        <x-ui.card title="Readings Log" icon="fa-table-list" :padded="false">
             <x-ui.data-table
                 id="readings-table"
                 :bulk-action="route('tandon-readings.bulk-destroy', $tandon)"
@@ -62,7 +62,7 @@
                     @forelse($readings as $reading)
                         <tr>
                             <td><input type="checkbox" data-row-select value="{{ $reading->id }}"></td>
-                            <td><strong>{{ $reading->recorded_at->format('d M Y, H:i') }}</strong></td>
+                            <td class="text-nowrap"><strong>{{ $reading->recorded_at->format('d M Y, H:i') }}</strong></td>
                             <td>@num($reading->water_height) m</td>
                             <td>@num($reading->water_volume * 1000) L</td>
                             <td>
@@ -103,9 +103,12 @@
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script>
+        window.addEventListener('DOMContentLoaded', () => {
         const chartLabels = @json($chartLabels);
         const chartHeights = @json($chartHeights);
         const chartVolumes = @json($chartVolumes);
+
+        wmApplyChartTheme();
 
         if (chartLabels.length > 0) {
             new Chart(document.getElementById('readingsHistoryChart'), {
@@ -168,7 +171,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     interaction: { mode: 'index', intersect: false },
-                    plugins: { legend: { display: false } },
+                    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 16 } } },
                     scales: {
                         yHeight: {
                             type: 'linear',
@@ -185,5 +188,6 @@
                 }
             });
         }
+        });
     </script>
 @endsection

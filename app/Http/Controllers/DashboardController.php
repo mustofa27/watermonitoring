@@ -67,7 +67,7 @@ class DashboardController extends Controller
             $statusLabel = 'Offline';
 
             if ($latestReading) {
-                $isOffline = $latestReading->recorded_at->lt(now('Asia/Jakarta')->subHours(2));
+                $isOffline = $latestReading->recordedInstant()->lt(now()->subHours(2));
 
                 if ($isOffline) {
                     $status = 'offline';
@@ -93,7 +93,7 @@ class DashboardController extends Controller
                 'status_label' => $statusLabel,
                 'height_percent' => $usage['height_percent'],
                 'water_height' => $usage['water_height'],
-                'last_seen' => $latestReading?->recorded_at?->toIso8601String(),
+                'last_seen' => $latestReading?->recordedInstant()->toIso8601String(),
             ];
         });
 
@@ -136,38 +136,12 @@ class DashboardController extends Controller
             ->orderBy('recorded_at')
             ->get();
 
-        $telemetryBuckets = [];
-        foreach ($telemetryReadings as $reading) {
-            $bucketKey = Carbon::parse($reading->recorded_at, 'Asia/Jakarta')->startOfHour()->toIso8601String();
-            if (!isset($telemetryBuckets[$bucketKey])) {
-                $telemetryBuckets[$bucketKey] = [
-                    'timestamp' => $bucketKey,
-                    'level_sum' => 0.0,
-                    'volume_sum_l' => 0.0,
-                    'count' => 0,
-                ];
-            }
-
-            $maxHeight = (float) ($reading->tandon->height_max ?: 0);
-            $heightPercent = $maxHeight > 0 ? min(100, max(0, ((float) $reading->water_height / $maxHeight) * 100)) : 0;
-
-            $telemetryBuckets[$bucketKey]['level_sum'] += $heightPercent;
-            $telemetryBuckets[$bucketKey]['volume_sum_l'] += ((float) $reading->water_volume * 1000);
-            $telemetryBuckets[$bucketKey]['count']++;
-        }
-
-        $telemetrySeries = collect($telemetryBuckets)
-            ->map(function (array $bucket): array {
-                $count = max(1, $bucket['count']);
-
-                return [
-                    'timestamp' => $bucket['timestamp'],
-                    'avg_level' => round($bucket['level_sum'] / $count, 2),
-                    'avg_volume_l' => round($bucket['volume_sum_l'] / $count, 2),
-                ];
-            })
-            ->sortBy('timestamp')
-            ->values();
+        // 5-minute buckets for the 1H/24H views, hourly buckets for 7D/30D.
+        $telemetryFine = $this->bucketTelemetry(
+            $telemetryReadings->filter(fn (TandonReading $r) => $r->recordedInstant()->gte(now()->subDay())),
+            300
+        );
+        $telemetryHourly = $this->bucketTelemetry($telemetryReadings, 3600);
 
         $readingLogs = TandonReading::with('tandon:id,name,building_name,height_min,height_warning,height_max')
             ->orderByDesc('recorded_at')
@@ -198,10 +172,46 @@ class DashboardController extends Controller
             'recentUsages' => $recentUsages,
             'tandonUsage' => $tandonUsage,
             'nodeStatuses' => $nodeStatuses,
-            'telemetrySeries' => $telemetrySeries,
+            'telemetryFine' => $telemetryFine,
+            'telemetryHourly' => $telemetryHourly,
             'readingLogs' => $readingLogs,
             'kpi' => $kpi,
         ]);
+    }
+
+    /**
+     * Average level (%) and volume (L) across all tanks per time bucket.
+     *
+     * @param  Collection<int, TandonReading>  $readings
+     * @return array<int, array{timestamp: string, avg_level: float, avg_volume_l: float}>
+     */
+    private function bucketTelemetry(Collection $readings, int $bucketSeconds): array
+    {
+        $buckets = [];
+
+        foreach ($readings as $reading) {
+            $start = intdiv($reading->recordedInstant()->getTimestamp(), $bucketSeconds) * $bucketSeconds;
+            $maxHeight = (float) ($reading->tandon->height_max ?: 0);
+            $percent = $maxHeight > 0 ? min(100, max(0, ((float) $reading->water_height / $maxHeight) * 100)) : 0;
+
+            $buckets[$start] ??= ['level' => 0.0, 'volume' => 0.0, 'count' => 0];
+            $buckets[$start]['level'] += $percent;
+            $buckets[$start]['volume'] += (float) $reading->water_volume * 1000;
+            $buckets[$start]['count']++;
+        }
+
+        ksort($buckets);
+
+        $series = [];
+        foreach ($buckets as $start => $bucket) {
+            $series[] = [
+                'timestamp' => Carbon::createFromTimestamp($start)->toIso8601String(),
+                'avg_level' => round($bucket['level'] / $bucket['count'], 2),
+                'avg_volume_l' => round($bucket['volume'] / $bucket['count'], 2),
+            ];
+        }
+
+        return $series;
     }
 
     /**

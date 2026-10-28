@@ -1,129 +1,130 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    @include('layouts.partials.head')
     <title>Water Monitoring System - Politeknik Negeri Madura</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:wght@500;700&display=swap" rel="stylesheet">
-    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="wm-marketing-page" style="background: var(--wm-bg);">
-    <div class="wm-bg-orb wm-bg-orb--one"></div>
-    <div class="wm-bg-orb wm-bg-orb--two"></div>
+<body>
+    @php $signedIn = auth()->check() || session('user'); @endphp
 
-    <nav class="navbar wm-nav" data-nav-root>
+    <nav class="navbar navbar-expand-md wm-public-nav">
         <div class="container">
-            <a class="navbar-brand wm-nav__brand" href="#top"><i class="fas fa-droplet"></i> Water Monitor</a>
-            <button class="wm-nav__toggle" type="button" data-nav-toggle aria-controls="homeNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span></span>
-                <span></span>
-                <span></span>
+            <a class="navbar-brand" href="#top">
+                <span class="wm-sidebar__brand-icon"><i class="fas fa-droplet"></i></span>
+                Water Monitor
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav" aria-controls="publicNav" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
             </button>
-            <div class="wm-nav__menu" id="homeNav" data-nav-menu>
-                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2 mb-0">
-                    <li class="nav-item"><a class="nav-link wm-nav__link" href="#features">Features</a></li>
-                    <li class="nav-item"><a class="nav-link wm-nav__link" href="#monitoring">Monitoring</a></li>
-                    @if(session('user'))
-                        <li class="nav-item"><a class="btn wm-btn wm-btn--primary" href="{{ route('tandons.index') }}">Dashboard</a></li>
-                        <li class="nav-item">
-                            <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn wm-btn wm-btn--secondary">Logout</button>
-                            </form>
-                        </li>
-                    @else
-                        <li class="nav-item"><a class="btn wm-btn wm-btn--primary" href="{{ route('login') }}">Login</a></li>
-                    @endif
+            <div class="collapse navbar-collapse" id="publicNav">
+                <ul class="navbar-nav ms-auto align-items-md-center gap-md-1 pt-3 pt-md-0">
+                    <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#monitoring">Live status</a></li>
+                    <li class="nav-item ms-md-2 mt-2 mt-md-0">
+                        @if($signedIn)
+                            <a class="btn btn-primary btn-sm" href="{{ route('dashboard') }}">Open dashboard</a>
+                        @else
+                            <a class="btn btn-primary btn-sm" href="{{ route('login') }}">Log in</a>
+                        @endif
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <header class="container py-5" id="top">
-        <div class="wm-card overflow-hidden" style="background: linear-gradient(145deg, #102a25 20%, #156c61 80%); color: #f4fffc; border: 0;">
-            <div class="wm-card__body p-5">
-                <p class="text-uppercase mb-2" style="letter-spacing: 0.15em; opacity: 0.8;">Smart Water Management</p>
-                <h1 style="font-family: 'Source Serif 4', serif; font-size: clamp(2rem, 4.4vw, 3.2rem);">Automated Water Control System</h1>
-                <p class="mb-4" style="max-width: 650px; opacity: 0.9;">A centralized telemetry platform for automated monitoring, usage analytics, and intelligent pump control across campus water infrastructure.</p>
-                @if(!session('user'))
-                    <a class="btn wm-btn wm-btn--primary" href="{{ route('login') }}">Get Started</a>
+    <header class="wm-hero" id="top">
+        <div class="container">
+            <span class="wm-hero__eyebrow"><i class="fas fa-satellite-dish"></i> Smart water management</span>
+            <h1>Automated water control for campus</h1>
+            <p>Monitor tank levels, control pumps and respond to threshold alerts across every building, from one dashboard.</p>
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                @if($signedIn)
+                    <a class="btn btn-primary" href="{{ route('dashboard') }}">Open dashboard</a>
                 @else
-                    <a class="btn wm-btn wm-btn--primary" href="{{ route('tandons.index') }}">Go to Dashboard</a>
+                    <a class="btn btn-primary" href="{{ route('login') }}">Get started</a>
                 @endif
+                <a class="btn btn-outline-light" href="#monitoring" style="min-height: 3rem; padding-inline: 1.5rem;">See live status</a>
             </div>
         </div>
     </header>
 
-    <section class="container py-4" id="features">
-        <h2 class="mb-4" style="font-family: 'Source Serif 4', serif;">Automation Features</h2>
-        <div class="row g-3">
-            @foreach([
-                ['fa-robot', 'Automated Monitoring', 'Continuous level tracking with proactive threshold handling.'],
-                ['fa-cog', 'Smart Pump Control', 'Automatic pump orchestration based on live conditions.'],
-                ['fa-bell', 'Intelligent Alerts', 'Actionable alerts with operational severity context.'],
-                ['fa-chart-line', 'Predictive Analytics', 'Usage trend analysis for future planning.'],
-                ['fa-building', 'Multi-Building Control', 'Single-pane operations for distributed tanks.'],
-                ['fa-shield-alt', 'Secure Automation', 'Controlled workflows with auditable actions.'],
-            ] as [$icon, $title, $desc])
-                <div class="col-md-6 col-lg-4">
-                    <article class="wm-card h-100">
-                        <div class="wm-card__body">
-                            <div class="d-flex align-items-center gap-2 mb-2">
-                                <span class="wm-badge wm-badge--info"><i class="fas {{ $icon }}"></i></span>
-                                <h3 class="h6 mb-0">{{ $title }}</h3>
+    <section class="wm-public-section" id="features">
+        <div class="container">
+            <h2 class="wm-section-heading">Everything you need to run the network</h2>
+            <p class="wm-section-lead">Built for facilities teams working at a desk or in the field.</p>
+            <div class="row g-3 g-lg-4">
+                @foreach([
+                    ['fa-gauge-high', 'Live monitoring', 'Continuous level and volume tracking for every tank and building.'],
+                    ['fa-power-off', 'Pump control', 'Switch pumps on or off remotely, with confirmation and status feedback.'],
+                    ['fa-bell', 'Threshold alerts', 'Get notified when levels drop below warning or minimum limits.'],
+                    ['fa-chart-line', 'Usage analytics', 'Daily and monthly consumption trends to plan supply and spot leaks.'],
+                    ['fa-building', 'Multi-building', 'Central and building tanks organised in one hierarchy.'],
+                    ['fa-shield-halved', 'Secure access', 'Authenticated operations with a clear record of every action.'],
+                ] as [$icon, $title, $desc])
+                    <div class="col-md-6 col-lg-4">
+                        <article class="wm-feature">
+                            <span class="wm-feature__icon"><i class="fas {{ $icon }}"></i></span>
+                            <h3>{{ $title }}</h3>
+                            <p>{{ $desc }}</p>
+                        </article>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    <section class="wm-public-section wm-public-section--alt" id="monitoring">
+        <div class="container">
+            <h2 class="wm-section-heading">Campus water status</h2>
+            <p class="wm-section-lead">Latest reading from each monitoring point.</p>
+            <div class="row g-3 g-lg-4">
+                @forelse($tandons as $tandon)
+                    @php
+                        $latest = $tandon->readings->first();
+                        $pct = null;
+                        $tone = 'neutral';
+                        $fill = 'offline';
+                        if ($latest && $tandon->height_max > $tandon->height_min) {
+                            $pct = max(0, min(100, round(($latest->water_height - $tandon->height_min) / ($tandon->height_max - $tandon->height_min) * 100)));
+                            [$tone, $fill] = $pct <= 20 ? ['danger', 'critical'] : ($pct <= 50 ? ['warning', 'warning'] : ['success', 'online']);
+                        }
+                    @endphp
+                    <div class="col-md-6 col-lg-4">
+                        <article class="wm-feature">
+                            <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                                <h3 class="mb-0">{{ $tandon->building_name ?: $tandon->name }}</h3>
+                                @if($pct !== null)
+                                    <x-ui.status-badge :tone="$tone" size="sm">{{ $pct }}%</x-ui.status-badge>
+                                @else
+                                    <x-ui.status-badge tone="neutral" size="sm">No data</x-ui.status-badge>
+                                @endif
                             </div>
-                            <p class="mb-0 text-muted">{{ $desc }}</p>
-                        </div>
-                    </article>
-                </div>
-            @endforeach
+                            <div class="wm-level">
+                                <div class="wm-level__track"><div class="wm-level__fill wm-level__fill--{{ $fill }}" style="width: {{ $pct ?? 0 }}%"></div></div>
+                            </div>
+                            <p class="small mt-3">
+                                @if($latest)
+                                    Height {{ number_format($latest->water_height, 2) }} m &middot; Volume {{ number_format($latest->water_volume, 2) }} m³
+                                @else
+                                    Waiting for first reading
+                                @endif
+                            </p>
+                        </article>
+                    </div>
+                @empty
+                    <div class="col-12">
+                        <x-ui.empty-state icon="fa-water" title="No monitoring points yet" message="Tanks will appear here once they are added." />
+                    </div>
+                @endforelse
+            </div>
         </div>
     </section>
 
-    <section class="container py-4" id="monitoring">
-        <h2 class="mb-4" style="font-family: 'Source Serif 4', serif;">Campus Water Monitoring</h2>
-        <div class="row g-3">
-            @forelse($tandons as $tandon)
-                @php
-                    $latestReading = $tandon->readings->first();
-                    $capacityPct = null;
-                    $capacityTone = 'neutral';
-                    if ($latestReading && $tandon->height_max > $tandon->height_min) {
-                        $capacityPct = round(($latestReading->water_height - $tandon->height_min) / ($tandon->height_max - $tandon->height_min) * 100);
-                        $capacityPct = max(0, min(100, $capacityPct));
-                        $capacityTone = $capacityPct <= 20 ? 'danger' : ($capacityPct <= 50 ? 'warning' : 'info');
-                    }
-                @endphp
-                <div class="col-md-6 col-lg-4">
-                    <article class="wm-card h-100">
-                        <div class="wm-card__body">
-                            <h3 class="h6 mb-2">{{ $tandon->building_name ?: $tandon->name }}</h3>
-                            <x-ui.status-badge tone="success">Active</x-ui.status-badge>
-                            @if($capacityPct !== null)
-                                <x-ui.status-badge :tone="$capacityTone">{{ $capacityPct }}% Capacity</x-ui.status-badge>
-                            @else
-                                <x-ui.status-badge tone="neutral">No data</x-ui.status-badge>
-                            @endif
-                            @if($latestReading)
-                                <p class="small text-muted mt-2 mb-0">Height: {{ number_format($latestReading->water_height, 2) }} m | Volume: {{ number_format($latestReading->water_volume, 2) }} m³</p>
-                            @endif
-                        </div>
-                    </article>
-                </div>
-            @empty
-                <div class="col-12">
-                    <x-ui.empty-state title="No water tanks found" message="No monitoring points are available yet." />
-                </div>
-            @endforelse
+    <footer class="wm-public-footer">
+        <div class="container d-flex flex-wrap justify-content-between gap-2">
+            <span>&copy; {{ date('Y') }} Water Monitoring System, Politeknik Negeri Madura</span>
+            <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" data-theme-toggle>Toggle dark mode</button>
         </div>
-    </section>
-
-    <footer class="container py-4 text-center text-muted">
-        Copyright © Water Monitoring System 2026
     </footer>
 </body>
 </html>

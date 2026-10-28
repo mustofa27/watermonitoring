@@ -17,7 +17,7 @@
     <div class="container wm-section">
         @include('layouts.partials.flash-messages')
 
-        <x-ui.card title="Water Tanks Directory" icon="fa-list" subtitle="Grouped for operations, telemetry, and maintenance">
+        <x-ui.card title="Water Tanks" icon="fa-list" subtitle="Select rows to delete in bulk" :padded="false">
             <x-ui.data-table
                 id="tandons-table"
                 :bulk-action="route('tandons.bulk-destroy')"

@@ -5,7 +5,7 @@
 ])
 
 <div class="wm-empty-state">
-    <i class="fas {{ $icon }} wm-empty-state__icon"></i>
+    <span class="wm-empty-state__icon"><i class="fas {{ $icon }}"></i></span>
     <h3 class="wm-empty-state__title">{{ $title }}</h3>
     @if($message)
         <p class="wm-empty-state__message">{{ $message }}</p>
