@@ -30,9 +30,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/alerts/{alert}/unresolve', [AlertController::class, 'unresolve'])->name('alerts.unresolve');
     Route::delete('/alerts/{alert}', [AlertController::class, 'destroy'])->name('alerts.destroy');
     Route::post('/alerts/resolve-all', [AlertController::class, 'resolveAll'])->name('alerts.resolveAll');
+    Route::post('/alerts/bulk-action', [AlertController::class, 'bulkAction'])->name('alerts.bulk-action');
     
     // Tandons routes
     Route::resource('tandons', TandonController::class);
+    Route::post('/tandons/bulk-delete', [TandonController::class, 'bulkDestroy'])->name('tandons.bulk-destroy');
     // Route to truncate readings and usages for a tank
     Route::post('/tandons/{tandon}/truncate-data', [TandonController::class, 'truncateData'])->name('tandons.truncate-data');
     Route::post('/tandons/{tandon}/pump-on', [TandonController::class, 'pumpOn'])->name('tandons.pump-on');

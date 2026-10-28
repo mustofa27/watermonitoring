@@ -8,11 +8,19 @@ use Illuminate\Http\Request;
 
 class TandonReadingController extends Controller
 {
+    private const ALLOWED_PER_PAGE = [10, 25, 50, 100];
+
     public function index(Tandon $tandon)
     {
+        $perPage = (int) request('per_page', 15);
+        if (!in_array($perPage, self::ALLOWED_PER_PAGE, true)) {
+            $perPage = 15;
+        }
+
         $readings = $tandon->readings()
             ->orderBy('recorded_at', 'desc')
-            ->paginate(15);
+            ->paginate($perPage)
+            ->withQueryString();
 
         return view('tandon-readings.index', compact('tandon', 'readings'));
     }
@@ -61,6 +69,7 @@ class TandonReadingController extends Controller
     public function bulkDestroy(Request $request, Tandon $tandon)
     {
         $validated = $request->validate([
+            'action' => 'nullable|in:delete',
             'reading_ids' => 'required|array',
             'reading_ids.*' => 'exists:tandon_readings,id',
         ]);
@@ -69,7 +78,9 @@ class TandonReadingController extends Controller
             ->where('tandon_id', $tandon->id)
             ->delete();
 
-        return redirect()->route('tandon-readings.index', $tandon)
+        return redirect()->route('tandon-readings.index', array_merge([
+            'tandon' => $tandon,
+        ], $request->only('per_page', 'page')))
             ->with('success', "$deletedCount reading(s) deleted successfully!");
     }
 }

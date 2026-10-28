@@ -13,6 +13,8 @@ use Throwable;
 
 class TandonController extends Controller
 {
+    private const ALLOWED_PER_PAGE = [10, 25, 50, 100];
+
     /**
      * Remove all readings and usages for a given Tandon (water tank).
      *
@@ -80,9 +82,28 @@ class TandonController extends Controller
 
     public function index(): View
     {
-        $tandons = Tandon::with('parent')->paginate(10);
+        $perPage = (int) request('per_page', 10);
+        if (!in_array($perPage, self::ALLOWED_PER_PAGE, true)) {
+            $perPage = 10;
+        }
+
+        $tandons = Tandon::with('parent')->paginate($perPage)->withQueryString();
 
         return view('tandons.index', compact('tandons'));
+    }
+
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|exists:tandons,id',
+        ]);
+
+        $deleted = Tandon::whereIn('id', $validated['ids'])->delete();
+
+        return redirect()
+            ->route('tandons.index', $request->only('per_page', 'page'))
+            ->with('success', "{$deleted} water tank(s) deleted successfully.");
     }
 
     public function create(): View

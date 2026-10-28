@@ -2,503 +2,126 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Water Monitoring System - Politeknik Negeri Madura</title>
-    
-    <!-- Font Awesome icons -->
-    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-    
-    <!-- Google fonts-->
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
-    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bs-primary: #0d6efd;
-            --bs-primary-rgb: 13, 110, 253;
-        }
-        
-        body {
-            font-family: "Roboto Slab", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-        }
-        
-        .navbar {
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-            background-color: #212529;
-        }
-        
-        .navbar-brand {
-            font-size: 1.75em;
-            font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            font-weight: 700;
-            color: #ffc800;
-        }
-        
-        .navbar-nav .nav-link {
-            font-size: 0.95rem;
-            color: #fff;
-            font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            font-weight: 400;
-            letter-spacing: 0.0625em;
-        }
-        
-        .navbar-nav .nav-link:hover {
-            color: #ffc800;
-        }
-        
-        .masthead {
-            padding-top: 10.5rem;
-            padding-bottom: 6rem;
-            text-align: center;
-            color: #fff;
-            background-image: url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920');
-            background-repeat: no-repeat;
-            background-attachment: scroll;
-            background-position: center center;
-            background-size: cover;
-        }
-        
-        .masthead .masthead-subheading {
-            font-size: 1.5rem;
-            font-style: italic;
-            line-height: 1.5rem;
-            margin-bottom: 25px;
-            font-family: "Roboto Slab", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        }
-        
-        .masthead .masthead-heading {
-            font-size: 3.25rem;
-            font-weight: 700;
-            line-height: 3.25rem;
-            margin-bottom: 2rem;
-            font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        }
-        
-        .page-section {
-            padding: 6rem 0;
-        }
-        
-        .section-heading {
-            font-size: 2.5rem;
-            margin-top: 0;
-            margin-bottom: 1rem;
-            font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            font-weight: 700;
-        }
-        
-        .section-subheading {
-            font-size: 1rem;
-            font-weight: 400;
-            font-style: italic;
-            margin-bottom: 4rem;
-            font-family: "Roboto Slab", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        }
-        
-        .btn-xl {
-            padding: 1.25rem 2.5rem;
-            font-size: 1.125rem;
-            font-weight: 700;
-        }
-        
-        .fa-stack {
-            margin-bottom: 1rem;
-        }
-        
-        .text-primary {
-            color: #ffc800 !important;
-        }
-        
-        .btn-primary {
-            background-color: #ffc800;
-            border-color: #ffc800;
-            color: #000;
-        }
-        
-        .btn-primary:hover {
-            background-color: #e6b400;
-            border-color: #e6b400;
-        }
-        
-        .timeline {
-            position: relative;
-            padding: 0;
-            list-style: none;
-        }
-        
-        .timeline:before {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 40px;
-            width: 2px;
-            margin-left: -1.5px;
-            content: "";
-            background-color: #e9ecef;
-        }
-        
-        .timeline > li {
-            position: relative;
-            min-height: 50px;
-            margin-bottom: 50px;
-        }
-        
-        .timeline > li:after, .timeline > li:before {
-            display: table;
-            content: " ";
-        }
-        
-        .timeline > li:after {
-            clear: both;
-        }
-        
-        .timeline > li .timeline-panel {
-            position: relative;
-            float: right;
-            width: 100%;
-            padding: 0 20px 0 100px;
-            text-align: left;
-        }
-        
-        .timeline > li .timeline-image {
-            position: absolute;
-            z-index: 100;
-            left: 0;
-            width: 80px;
-            height: 80px;
-            margin-left: 0;
-            text-align: center;
-            color: white;
-            border: 7px solid #e9ecef;
-            border-radius: 100%;
-            background-color: #ffc800;
-        }
-        
-        .timeline > li .timeline-image h4 {
-            font-size: 10px;
-            line-height: 14px;
-            margin-top: 12px;
-        }
-        
-        .timeline > li.timeline-inverted > .timeline-panel {
-            float: right;
-            padding: 0 20px 0 100px;
-            text-align: left;
-        }
-        
-        .team-member {
-            margin-bottom: 3rem;
-            text-align: center;
-        }
-        
-        .team-member img {
-            width: 14rem;
-            height: 14rem;
-            border: 0.5rem solid rgba(0, 0, 0, 0.1);
-        }
-        
-        .team-member h4 {
-            margin-top: 1.5rem;
-            margin-bottom: 0;
-        }
-        
-        .footer {
-            padding: 1.5rem 0;
-            text-align: center;
-        }
-        
-        .btn-social {
-            height: 2.5rem;
-            width: 2.5rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            border-radius: 100%;
-        }
-        
-        @media (min-width: 768px) {
-            .masthead {
-                padding-top: 17rem;
-                padding-bottom: 12.5rem;
-            }
-            
-            .masthead .masthead-subheading {
-                font-size: 2.25rem;
-                font-style: italic;
-                line-height: 2.25rem;
-                margin-bottom: 2rem;
-            }
-            
-            .masthead .masthead-heading {
-                font-size: 4.5rem;
-                font-weight: 700;
-                line-height: 4.5rem;
-                margin-bottom: 4rem;
-            }
-        }
-        
-        @media (min-width: 992px) {
-            .timeline > li {
-                min-height: 150px;
-            }
-            
-            .timeline > li .timeline-panel {
-                float: left;
-                width: 41%;
-                padding: 0 20px 20px 30px;
-                text-align: right;
-            }
-            
-            .timeline > li .timeline-image {
-                left: 50%;
-                width: 150px;
-                height: 150px;
-                margin-left: -75px;
-            }
-            
-            .timeline > li .timeline-image h4 {
-                font-size: 13px;
-                line-height: 18px;
-                margin-top: 30px;
-            }
-            
-            .timeline > li.timeline-inverted > .timeline-panel {
-                float: right;
-                padding: 0 30px 20px 20px;
-                text-align: left;
-            }
-        }
-    </style>
-</head>
-<body id="page-top">
 
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="wm-marketing-page" style="background: var(--wm-bg);">
+    <div class="wm-bg-orb wm-bg-orb--one"></div>
+    <div class="wm-bg-orb wm-bg-orb--two"></div>
+
+    <nav class="navbar navbar-expand-lg wm-nav">
         <div class="container">
-            <a class="navbar-brand" href="#page-top"><i class="fas fa-tint"></i> Water Monitor</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive">
-                Menu
-                <i class="fas fa-bars ms-1"></i>
+            <a class="navbar-brand wm-nav__brand" href="#top"><i class="fas fa-droplet"></i> Water Monitor</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#homeNav">
+                <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarResponsive">
-                <ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0">
-                    <li class="nav-item"><a class="nav-link" href="#services">Features</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#portfolio">Monitoring</a></li>
+            <div class="collapse navbar-collapse" id="homeNav">
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+                    <li class="nav-item"><a class="nav-link wm-nav__link" href="#features">Features</a></li>
+                    <li class="nav-item"><a class="nav-link wm-nav__link" href="#monitoring">Monitoring</a></li>
                     @if(session('user'))
-                        <li class="nav-item"><a class="nav-link" href="{{ route('tandons.index') }}">Dashboard</a></li>
+                        <li class="nav-item"><a class="btn wm-btn wm-btn--primary" href="{{ route('tandons.index') }}">Dashboard</a></li>
                         <li class="nav-item">
                             <form method="POST" action="{{ route('logout') }}" class="d-inline">
                                 @csrf
-                                <button type="submit" class="nav-link btn btn-link text-uppercase" style="border: none; background: none;">Logout</button>
+                                <button type="submit" class="btn wm-btn wm-btn--secondary">Logout</button>
                             </form>
                         </li>
                     @else
-                        <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>
+                        <li class="nav-item"><a class="btn wm-btn wm-btn--primary" href="{{ route('login') }}">Login</a></li>
                     @endif
                 </ul>
             </div>
         </div>
     </nav>
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert" style="position: fixed; top: 80px; right: 20px; z-index: 9999;">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
-    <!-- Masthead -->
-    <header class="masthead">
-        <div class="container">
-            <div class="masthead-subheading">Welcome To Smart Water Management</div>
-            <div class="masthead-heading text-uppercase">Automated Water Control System</div>
-            @if(!session('user'))
-                <a class="btn btn-primary btn-xl text-uppercase" href="{{ route('login') }}">Get Started</a>
-            @else
-                <a class="btn btn-primary btn-xl text-uppercase" href="{{ route('tandons.index') }}">Go to Dashboard</a>
-            @endif
+    <header class="container py-5" id="top">
+        <div class="wm-card overflow-hidden" style="background: linear-gradient(145deg, #102a25 20%, #156c61 80%); color: #f4fffc; border: 0;">
+            <div class="wm-card__body p-5">
+                <p class="text-uppercase mb-2" style="letter-spacing: 0.15em; opacity: 0.8;">Smart Water Management</p>
+                <h1 style="font-family: 'Source Serif 4', serif; font-size: clamp(2rem, 4.4vw, 3.2rem);">Automated Water Control System</h1>
+                <p class="mb-4" style="max-width: 650px; opacity: 0.9;">A centralized telemetry platform for automated monitoring, usage analytics, and intelligent pump control across campus water infrastructure.</p>
+                @if(!session('user'))
+                    <a class="btn wm-btn wm-btn--primary" href="{{ route('login') }}">Get Started</a>
+                @else
+                    <a class="btn wm-btn wm-btn--primary" href="{{ route('tandons.index') }}">Go to Dashboard</a>
+                @endif
+            </div>
         </div>
     </header>
 
-    <!-- Services -->
-    <section class="page-section" id="services">
-        <div class="container">
-            <div class="text-center">
-                <h2 class="section-heading text-uppercase">Automation Features</h2>
-                <h3 class="section-subheading text-muted">Intelligent automation for efficient water management</h3>
-            </div>
-            <div class="row text-center">
-                <div class="col-md-4">
-                    <span class="fa-stack fa-4x">
-                        <i class="fas fa-circle fa-stack-2x text-primary"></i>
-                        <i class="fas fa-robot fa-stack-1x fa-inverse"></i>
-                    </span>
-                    <h4 class="my-3">Automated Monitoring</h4>
-                    <p class="text-muted">AI-driven continuous water level tracking with predictive analytics for proactive management.</p>
-                </div>
-                <div class="col-md-4">
-                    <span class="fa-stack fa-4x">
-                        <i class="fas fa-circle fa-stack-2x text-primary"></i>
-                        <i class="fas fa-cog fa-stack-1x fa-inverse"></i>
-                    </span>
-                    <h4 class="my-3">Smart Pump Control</h4>
-                    <p class="text-muted">Automatic pump activation and deactivation based on real-time demand and water levels.</p>
-                </div>
-                <div class="col-md-4">
-                    <span class="fa-stack fa-4x">
-                        <i class="fas fa-circle fa-stack-2x text-primary"></i>
-                        <i class="fas fa-bell fa-stack-1x fa-inverse"></i>
-                    </span>
-                    <h4 class="my-3">Intelligent Alerts</h4>
-                    <p class="text-muted">Automated notifications with escalation protocols for critical water level situations.</p>
-                </div>
-            </div>
-            <div class="row text-center mt-4">
-                <div class="col-md-4">
-                    <span class="fa-stack fa-4x">
-                        <i class="fas fa-circle fa-stack-2x text-primary"></i>
-                        <i class="fas fa-chart-line fa-stack-1x fa-inverse"></i>
-                    </span>
-                    <h4 class="my-3">Predictive Analytics</h4>
-                    <p class="text-muted">Machine learning algorithms forecasting water usage and optimizing distribution patterns.</p>
-                </div>
-                <div class="col-md-4">
-                    <span class="fa-stack fa-4x">
-                        <i class="fas fa-circle fa-stack-2x text-primary"></i>
-                        <i class="fas fa-building fa-stack-1x fa-inverse"></i>
-                    </span>
-                    <h4 class="my-3">Multi-Building Control</h4>
-                    <p class="text-muted">Hierarchical automation managing water flow across multiple campus buildings seamlessly.</p>
-                </div>
-                <div class="col-md-4">
-                    <span class="fa-stack fa-4x">
-                        <i class="fas fa-circle fa-stack-2x text-primary"></i>
-                        <i class="fas fa-shield-alt fa-stack-1x fa-inverse"></i>
-                    </span>
-                    <h4 class="my-3">Secure Automation</h4>
-                    <p class="text-muted">Encrypted control protocols with comprehensive audit trails for all automated actions.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Portfolio Grid / Monitoring Points -->
-    <section class="page-section bg-light" id="portfolio">
-        <div class="container">
-            <div class="text-center">
-                <h2 class="section-heading text-uppercase">Campus Water Monitoring</h2>
-                <h3 class="section-subheading text-muted">Real-time monitoring across Politeknik Negeri Madura facilities</h3>
-            </div>
-            <div class="row">
-                @forelse($tandons as $tandon)
-                    @php
-                        $latestReading = $tandon->readings->first();
-                        $capacityPct = null;
-                        $capacityBadge = 'bg-secondary';
-                        if ($latestReading && $tandon->height_max > $tandon->height_min) {
-                            $capacityPct = round(($latestReading->water_height - $tandon->height_min) / ($tandon->height_max - $tandon->height_min) * 100);
-                            $capacityPct = max(0, min(100, $capacityPct));
-                            if ($capacityPct <= 20) {
-                                $capacityBadge = 'bg-danger';
-                            } elseif ($capacityPct <= 50) {
-                                $capacityBadge = 'bg-warning';
-                            } else {
-                                $capacityBadge = 'bg-info';
-                            }
-                        }
-                        $icon = is_null($tandon->parent_id) ? 'fa-water' : 'fa-building';
-                    @endphp
-                    <div class="col-lg-4 col-sm-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body text-center">
-                                <i class="fas {{ $icon }} fa-4x text-primary mb-3"></i>
-                                <h5 class="card-title">{{ $tandon->building_name }}</h5>
-                                <div class="mt-3">
-                                    <span class="badge bg-success">Active</span>
-                                    @if($capacityPct !== null)
-                                        <span class="badge {{ $capacityBadge }}">{{ $capacityPct }}% Capacity</span>
-                                    @else
-                                        <span class="badge bg-secondary">No data</span>
-                                    @endif
-                                </div>
-                                @if($latestReading)
-                                    <div class="mt-2 small text-muted">
-                                        Height: {{ number_format($latestReading->water_height, 2) }} m
-                                        &nbsp;|&nbsp;
-                                        Volume: {{ number_format($latestReading->water_volume, 2) }} m³
-                                    </div>
-                                @endif
+    <section class="container py-4" id="features">
+        <h2 class="mb-4" style="font-family: 'Source Serif 4', serif;">Automation Features</h2>
+        <div class="row g-3">
+            @foreach([
+                ['fa-robot', 'Automated Monitoring', 'Continuous level tracking with proactive threshold handling.'],
+                ['fa-cog', 'Smart Pump Control', 'Automatic pump orchestration based on live conditions.'],
+                ['fa-bell', 'Intelligent Alerts', 'Actionable alerts with operational severity context.'],
+                ['fa-chart-line', 'Predictive Analytics', 'Usage trend analysis for future planning.'],
+                ['fa-building', 'Multi-Building Control', 'Single-pane operations for distributed tanks.'],
+                ['fa-shield-alt', 'Secure Automation', 'Controlled workflows with auditable actions.'],
+            ] as [$icon, $title, $desc])
+                <div class="col-md-6 col-lg-4">
+                    <article class="wm-card h-100">
+                        <div class="wm-card__body">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="wm-badge wm-badge--info"><i class="fas {{ $icon }}"></i></span>
+                                <h3 class="h6 mb-0">{{ $title }}</h3>
                             </div>
+                            <p class="mb-0 text-muted">{{ $desc }}</p>
                         </div>
-                    </div>
-                @empty
-                    <div class="col-12 text-center">
-                        <p class="text-muted">No water tanks found in the database.</p>
-                    </div>
-                @endforelse
-            </div>
+                    </article>
+                </div>
+            @endforeach
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer py-4">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-4 text-lg-start">Copyright &copy; Water Monitoring System 2026</div>
-                <div class="col-lg-4 my-3 my-lg-0">
-                    <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                    <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+    <section class="container py-4" id="monitoring">
+        <h2 class="mb-4" style="font-family: 'Source Serif 4', serif;">Campus Water Monitoring</h2>
+        <div class="row g-3">
+            @forelse($tandons as $tandon)
+                @php
+                    $latestReading = $tandon->readings->first();
+                    $capacityPct = null;
+                    $capacityTone = 'neutral';
+                    if ($latestReading && $tandon->height_max > $tandon->height_min) {
+                        $capacityPct = round(($latestReading->water_height - $tandon->height_min) / ($tandon->height_max - $tandon->height_min) * 100);
+                        $capacityPct = max(0, min(100, $capacityPct));
+                        $capacityTone = $capacityPct <= 20 ? 'danger' : ($capacityPct <= 50 ? 'warning' : 'info');
+                    }
+                @endphp
+                <div class="col-md-6 col-lg-4">
+                    <article class="wm-card h-100">
+                        <div class="wm-card__body">
+                            <h3 class="h6 mb-2">{{ $tandon->building_name ?: $tandon->name }}</h3>
+                            <x-ui.status-badge tone="success">Active</x-ui.status-badge>
+                            @if($capacityPct !== null)
+                                <x-ui.status-badge :tone="$capacityTone">{{ $capacityPct }}% Capacity</x-ui.status-badge>
+                            @else
+                                <x-ui.status-badge tone="neutral">No data</x-ui.status-badge>
+                            @endif
+                            @if($latestReading)
+                                <p class="small text-muted mt-2 mb-0">Height: {{ number_format($latestReading->water_height, 2) }} m | Volume: {{ number_format($latestReading->water_volume, 2) }} m³</p>
+                            @endif
+                        </div>
+                    </article>
                 </div>
-                <div class="col-lg-4 text-lg-end">
-                    <a class="link-dark text-decoration-none me-3" href="#!">Privacy Policy</a>
-                    <a class="link-dark text-decoration-none" href="#!">Terms of Use</a>
+            @empty
+                <div class="col-12">
+                    <x-ui.empty-state title="No water tanks found" message="No monitoring points are available yet." />
                 </div>
-            </div>
+            @endforelse
         </div>
+    </section>
+
+    <footer class="container py-4 text-center text-muted">
+        Copyright © Water Monitoring System 2026
     </footer>
-
-    <!-- Bootstrap core JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        // Navbar shrink function
-        var navbarShrink = function () {
-            const navbarCollapsible = document.body.querySelector('#mainNav');
-            if (!navbarCollapsible) {
-                return;
-            }
-            if (window.scrollY === 0) {
-                navbarCollapsible.classList.remove('navbar-shrink')
-            } else {
-                navbarCollapsible.classList.add('navbar-shrink')
-            }
-        };
-
-        // Shrink the navbar 
-        navbarShrink();
-
-        // Shrink the navbar when page is scrolled
-        document.addEventListener('DOMContentLoaded', navbarShrink);
-        window.addEventListener('scroll', navbarShrink);
-
-        // Smooth scrolling
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-    </script>
 </body>
 </html>

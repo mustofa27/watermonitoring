@@ -3,93 +3,76 @@
 @section('title', 'Create Water Tank')
 
 @section('content')
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="container">
-            <h1><i class="fas fa-plus-circle"></i> Create New Water Tank</h1>
-            <p class="lead mb-0">Add a new water tank to the monitoring system</p>
-        </div>
-    </div>
+    <x-ui.page-header
+        title="Create New Water Tank"
+        subtitle="Add a new water tank to the monitoring system"
+        icon="fa-plus-circle"
+    />
 
-    <!-- Main Content -->
-    <div class="container mb-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-body p-4">
-                        <form method="POST" action="{{ route('tandons.store') }}">
-                            @csrf
+    <div class="container wm-section">
+        @include('layouts.partials.flash-messages')
 
-                            <div class="mb-3">
-                                <label for="name" class="form-label">Water Tank Name</label>
-                                <input type="text" name="name" id="name" value="{{ old('name') }}" required class="form-control" placeholder="e.g., Main Water Tank">
-                                <small class="text-muted d-block mt-1">
-                                    <i class="fas fa-info-circle"></i> <strong>Important:</strong> Must match exactly with the Device ID registered on <a href="https://mqtt.icminovasi.my.id" target="_blank" rel="noopener">mqtt.icminovasi.my.id</a>
-                                </small>
-                                @error('name') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-                            </div>
+        <x-ui.card title="Water Tank Form" icon="fa-pen-to-square">
+            <form method="POST" action="{{ route('tandons.store') }}">
+                @csrf
 
-                            <div class="mb-3">
-                                <label for="type" class="form-label">Type</label>
-                                <select name="type" id="type" required class="form-select">
-                                    <option value="">Select Type</option>
-                                    <option value="PUSAT" {{ old('type') == 'PUSAT' ? 'selected' : '' }}>PUSAT (Central)</option>
-                                    <option value="GEDUNG" {{ old('type') == 'GEDUNG' ? 'selected' : '' }}>GEDUNG (Building)</option>
-                                </select>
-                                @error('type') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-                            </div>
+                <div class="wm-form-grid">
+                    <div class="wm-form-field--full">
+                        <label for="name" class="form-label">Water Tank Name</label>
+                        <input type="text" name="name" id="name" value="{{ old('name') }}" required class="form-control" placeholder="e.g., Main Water Tank">
+                        <small class="text-muted d-block mt-1">Must match exactly with Device ID on mqtt.icminovasi.my.id.</small>
+                    </div>
 
-                            <div class="mb-3">
-                                <label for="building_name" class="form-label">Building Name</label>
-                                <input type="text" name="building_name" id="building_name" value="{{ old('building_name') }}" class="form-control" placeholder="e.g., Engineering Building">
-                                @error('building_name') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-                            </div>
+                    <div>
+                        <label for="type" class="form-label">Type</label>
+                        <select name="type" id="type" required class="form-select">
+                            <option value="">Select Type</option>
+                            <option value="PUSAT" {{ old('type') == 'PUSAT' ? 'selected' : '' }}>PUSAT (Central)</option>
+                            <option value="GEDUNG" {{ old('type') == 'GEDUNG' ? 'selected' : '' }}>GEDUNG (Building)</option>
+                        </select>
+                    </div>
 
-                            <div class="mb-3">
-                                <label for="parent_id" class="form-label">Parent Water Tank</label>
-                                <select name="parent_id" id="parent_id" class="form-select">
-                                    <option value="">No Parent</option>
-                                    @foreach($parents as $parent)
-                                        <option value="{{ $parent->id }}" {{ old('parent_id') == $parent->id ? 'selected' : '' }}>{{ $parent->name }}</option>
-                                    @endforeach
-                                </select>
-                                @error('parent_id') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-                            </div>
+                    <div>
+                        <label for="building_name" class="form-label">Building Name</label>
+                        <input type="text" name="building_name" id="building_name" value="{{ old('building_name') }}" class="form-control" placeholder="e.g., Engineering Building">
+                    </div>
 
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="cross_section_area" class="form-label">Cross Section Area (m²)</label>
-                                    <input type="number" step="0.0001" name="cross_section_area" id="cross_section_area" value="{{ old('cross_section_area') }}" required class="form-control">
-                                    @error('cross_section_area') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="height_max" class="form-label">Max Height (m)</label>
-                                    <input type="number" step="0.001" name="height_max" id="height_max" value="{{ old('height_max') }}" required class="form-control">
-                                    @error('height_max') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-                                </div>
-                            </div>
+                    <div>
+                        <label for="parent_id" class="form-label">Parent Water Tank</label>
+                        <select name="parent_id" id="parent_id" class="form-select">
+                            <option value="">No Parent</option>
+                            @foreach($parents as $parent)
+                                <option value="{{ $parent->id }}" {{ old('parent_id') == $parent->id ? 'selected' : '' }}>{{ $parent->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="height_min" class="form-label">Min Height (m)</label>
-                                    <input type="number" step="0.001" name="height_min" id="height_min" value="{{ old('height_min') }}" required class="form-control">
-                                    @error('height_min') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="height_warning" class="form-label">Warning Height (m)</label>
-                                    <input type="number" step="0.001" name="height_warning" id="height_warning" value="{{ old('height_warning') }}" required class="form-control">
-                                    @error('height_warning') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-                                </div>
-                            </div>
+                    <div>
+                        <label for="cross_section_area" class="form-label">Cross Section Area (m²)</label>
+                        <input type="number" step="0.0001" name="cross_section_area" id="cross_section_area" value="{{ old('cross_section_area') }}" required class="form-control">
+                    </div>
 
-                            <div class="d-flex justify-content-end gap-2 mt-4">
-                                <a href="{{ route('tandons.index') }}" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</a>
-                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create Water Tank</button>
-                            </div>
-                        </form>
+                    <div>
+                        <label for="height_max" class="form-label">Max Height (m)</label>
+                        <input type="number" step="0.001" name="height_max" id="height_max" value="{{ old('height_max') }}" required class="form-control">
+                    </div>
+
+                    <div>
+                        <label for="height_min" class="form-label">Min Height (m)</label>
+                        <input type="number" step="0.001" name="height_min" id="height_min" value="{{ old('height_min') }}" required class="form-control">
+                    </div>
+
+                    <div>
+                        <label for="height_warning" class="form-label">Warning Height (m)</label>
+                        <input type="number" step="0.001" name="height_warning" id="height_warning" value="{{ old('height_warning') }}" required class="form-control">
                     </div>
                 </div>
-            </div>
-        </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{{ route('tandons.index') }}" class="btn wm-btn wm-btn--secondary">Cancel</a>
+                    <button type="submit" class="btn wm-btn wm-btn--primary">Create Water Tank</button>
+                </div>
+            </form>
+        </x-ui.card>
     </div>
 @endsection

@@ -3,158 +3,59 @@
 @section('title', 'Reading Details - ' . $tandon->name)
 
 @section('content')
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="container">
-            <h1><i class="fas fa-chart-line"></i> Reading Details</h1>
-            <p class="lead mb-0">Detailed information for this water measurement</p>
-        </div>
-    </div>
+    <x-ui.page-header
+        title="Reading Details"
+        subtitle="Detailed information for this water measurement"
+        icon="fa-chart-line"
+    >
+        <a href="{{ route('tandon-readings.index', $tandon) }}" class="btn wm-btn wm-btn--secondary">
+            <i class="fas fa-arrow-left"></i>
+            Back
+        </a>
+    </x-ui.page-header>
 
-    <!-- Main Content -->
-    <div class="container mb-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h3 class="mb-0">Water Tank: {{ $tandon->name }}</h3>
-                            <div class="btn-group">
-                                <a href="{{ route('tandon-readings.index', $tandon) }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
-                            </div>
-                        </div>
+    <div class="container wm-section">
+        @include('layouts.partials.flash-messages')
 
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="detail-item">
-                                    <label class="text-muted small mb-1"><i class="fas fa-water"></i> Water Tank Name</label>
-                                    <div class="fw-semibold">{{ $tandon->name }}</div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="detail-item">
-                                    <label class="text-muted small mb-1"><i class="fas fa-cube"></i> Water Tank Type</label>
-                                    <div class="fw-semibold">
-                                        @if($tandon->type === 'PUSAT')
-                                            <span class="badge bg-primary">PUSAT (Central)</span>
-                                        @else
-                                            <span class="badge bg-info">GEDUNG (Building)</span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-12"><hr></div>
-
-                            <div class="col-md-6">
-                                <div class="detail-item">
-                                    <label class="text-muted small mb-1"><i class="fas fa-arrows-alt-v"></i> Water Height</label>
-                                    <div class="fw-semibold">@num($reading->water_height) m</div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="detail-item">
-                                    <label class="text-muted small mb-1"><i class="fas fa-liquid"></i> Water Volume</label>
-                                    <div class="fw-semibold">@num($reading->water_volume * 1000) L</div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="detail-item">
-                                    <label class="text-muted small mb-1"><i class="fas fa-calendar"></i> Recorded At</label>
-                                    <div class="fw-semibold">{{ $reading->recorded_at->format('d M Y, H:i:s') }}</div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="detail-item">
-                                    <label class="text-muted small mb-1"><i class="fas fa-check-circle"></i> Status</label>
-                                    <div class="fw-semibold">
-                                        @if($reading->water_height >= $tandon->height_max)
-                                            <span class="badge bg-danger">High - Above Maximum</span>
-                                        @elseif($reading->water_height >= $tandon->height_warning)
-                                            <span class="badge bg-warning text-dark">Warning - Above Threshold</span>
-                                        @elseif($reading->water_height <= $tandon->height_min)
-                                            <span class="badge bg-danger">Low - Below Minimum</span>
-                                        @else
-                                            <span class="badge bg-success">Normal</span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-12"><hr></div>
-
-                            <div class="col-md-6">
-                                <div class="detail-item">
-                                    <label class="text-muted small mb-1"><i class="fas fa-expand"></i> Cross Section Area</label>
-                                    <div class="fw-semibold">@num($tandon->cross_section_area) m²</div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="detail-item">
-                                    <label class="text-muted small mb-1"><i class="fas fa-exclamation-triangle"></i> Warning Height</label>
-                                    <div class="fw-semibold text-warning">@num($tandon->height_warning) m</div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="detail-item">
-                                    <label class="text-muted small mb-1"><i class="fas fa-level-down-alt"></i> Min Height</label>
-                                    <div class="fw-semibold text-danger">@num($tandon->height_min) m</div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="detail-item">
-                                    <label class="text-muted small mb-1"><i class="fas fa-level-up-alt"></i> Max Height</label>
-                                    <div class="fw-semibold text-success">@num($tandon->height_max) m</div>
-                                </div>
-                            </div>
-
-                            <div class="col-12"><hr></div>
-
-                            <div class="col-md-6">
-                                <div class="detail-item">
-                                    <label class="text-muted small mb-1"><i class="fas fa-calendar-plus"></i> Created At</label>
-                                    <div class="fw-semibold">{{ $reading->created_at->format('d M Y, H:i:s') }}</div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="detail-item">
-                                    <label class="text-muted small mb-1"><i class="fas fa-calendar-check"></i> Updated At</label>
-                                    <div class="fw-semibold">{{ $reading->updated_at->format('d M Y, H:i:s') }}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 pt-3 border-top">
-                            <form method="POST" action="{{ route('tandon-readings.destroy', [$tandon, $reading]) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this reading?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger">
-                                    <i class="fas fa-trash"></i> Delete Reading
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+        <x-ui.card :title="'Water Tank: ' . $tandon->name" icon="fa-water">
+            <div class="wm-detail-grid">
+                <div class="wm-detail-item"><p class="wm-detail-item__label">Water Tank Name</p><p class="wm-detail-item__value">{{ $tandon->name }}</p></div>
+                <div class="wm-detail-item"><p class="wm-detail-item__label">Water Tank Type</p><p class="wm-detail-item__value">{{ $tandon->type }}</p></div>
+                <div class="wm-detail-item"><p class="wm-detail-item__label">Water Height</p><p class="wm-detail-item__value">@num($reading->water_height) m</p></div>
+                <div class="wm-detail-item"><p class="wm-detail-item__label">Water Volume</p><p class="wm-detail-item__value">@num($reading->water_volume * 1000) L</p></div>
+                <div class="wm-detail-item"><p class="wm-detail-item__label">Recorded At</p><p class="wm-detail-item__value">{{ $reading->recorded_at->format('d M Y, H:i:s') }}</p></div>
+                <div class="wm-detail-item">
+                    <p class="wm-detail-item__label">Status</p>
+                    <p class="wm-detail-item__value">
+                        @if($reading->water_height >= $tandon->height_max)
+                            <x-ui.status-badge tone="danger">High - Above Maximum</x-ui.status-badge>
+                        @elseif($reading->water_height >= $tandon->height_warning)
+                            <x-ui.status-badge tone="warning">Warning - Above Threshold</x-ui.status-badge>
+                        @elseif($reading->water_height <= $tandon->height_min)
+                            <x-ui.status-badge tone="danger">Low - Below Minimum</x-ui.status-badge>
+                        @else
+                            <x-ui.status-badge tone="success">Normal</x-ui.status-badge>
+                        @endif
+                    </p>
                 </div>
+                <div class="wm-detail-item"><p class="wm-detail-item__label">Cross Section Area</p><p class="wm-detail-item__value">@num($tandon->cross_section_area) m²</p></div>
+                <div class="wm-detail-item"><p class="wm-detail-item__label">Warning Height</p><p class="wm-detail-item__value">@num($tandon->height_warning) m</p></div>
+                <div class="wm-detail-item"><p class="wm-detail-item__label">Min Height</p><p class="wm-detail-item__value">@num($tandon->height_min) m</p></div>
+                <div class="wm-detail-item"><p class="wm-detail-item__label">Max Height</p><p class="wm-detail-item__value">@num($tandon->height_max) m</p></div>
+                <div class="wm-detail-item"><p class="wm-detail-item__label">Created At</p><p class="wm-detail-item__value">{{ $reading->created_at->format('d M Y, H:i:s') }}</p></div>
+                <div class="wm-detail-item"><p class="wm-detail-item__label">Updated At</p><p class="wm-detail-item__value">{{ $reading->updated_at->format('d M Y, H:i:s') }}</p></div>
             </div>
-        </div>
-    </div>
-@endsection
 
-@section('styles')
-<style>
-    .detail-item {
-        padding: 0.75rem;
-        background: #f8f9fa;
-        border-radius: 0.375rem;
-        height: 100%;
-    }
-</style>
+            <div class="mt-4">
+                <form method="POST" action="{{ route('tandon-readings.destroy', [$tandon, $reading]) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this reading?');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i>
+                        Delete Reading
+                    </button>
+                </form>
+            </div>
+        </x-ui.card>
+    </div>
 @endsection

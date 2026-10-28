@@ -3,199 +3,90 @@
 @section('title', 'Water Tanks Management')
 
 @section('content')
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="container">
-            <h1><i class="fas fa-water"></i> Water Tanks Management</h1>
-            <p class="lead mb-0">Manage all water tanks and their settings</p>
-        </div>
+    <x-ui.page-header
+        title="Water Tanks Management"
+        subtitle="Manage all water tanks and their settings"
+        icon="fa-water"
+    >
+        <a href="{{ route('tandons.create') }}" class="btn wm-btn wm-btn--primary">
+            <i class="fas fa-plus-circle"></i>
+            Add New Water Tank
+        </a>
+    </x-ui.page-header>
+
+    <div class="container wm-section">
+        @include('layouts.partials.flash-messages')
+
+        <x-ui.card title="Water Tanks Directory" icon="fa-list" subtitle="Grouped for operations, telemetry, and maintenance">
+            <x-ui.data-table
+                id="tandons-table"
+                :bulk-action="route('tandons.bulk-destroy')"
+                :bulk-actions="['delete' => 'Delete selected']"
+            >
+                <thead>
+                    <tr>
+                        <th style="width: 48px;"><input type="checkbox" data-master-select></th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Building</th>
+                        <th>Area (m²)</th>
+                        <th>Parent</th>
+                        <th class="text-center">Pump Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($tandons as $tandon)
+                        <tr>
+                            <td><input type="checkbox" data-row-select value="{{ $tandon->id }}"></td>
+                            <td><strong>{{ $tandon->name }}</strong></td>
+                            <td><x-ui.status-badge tone="neutral">{{ $tandon->type }}</x-ui.status-badge></td>
+                            <td>{{ $tandon->building_name ?? '-' }}</td>
+                            <td>{{ $tandon->cross_section_area !== null ? num_id($tandon->cross_section_area) : '-' }}</td>
+                            <td>{{ $tandon->parent->name ?? '-' }}</td>
+                            <td class="text-center">
+                                @if($tandon->pump_status === 1)
+                                    <x-ui.status-badge tone="success">ON</x-ui.status-badge>
+                                @elseif($tandon->pump_status === 0)
+                                    <x-ui.status-badge tone="neutral">OFF</x-ui.status-badge>
+                                @else
+                                    <x-ui.status-badge tone="warning">UNKNOWN</x-ui.status-badge>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <div class="wm-table-actions justify-content-center">
+                                    <a href="{{ route('tandon-readings.index', $tandon) }}" class="btn btn-sm btn-outline-secondary" title="View Readings"><i class="fas fa-chart-line"></i></a>
+                                    <a href="{{ route('tandons.show', $tandon) }}" class="btn btn-sm btn-outline-info" title="View"><i class="fas fa-eye"></i></a>
+                                    <a href="{{ route('tandons.edit', $tandon) }}" class="btn btn-sm btn-outline-warning" title="Edit"><i class="fas fa-edit"></i></a>
+                                    <form method="POST" action="{{ route('tandons.destroy', $tandon) }}" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this water tank?')" title="Delete"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                    <form method="POST" action="{{ route('tandons.truncate-data', $tandon) }}" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-outline-dark" onclick="return confirm('Are you sure you want to delete ALL readings and usages for this tank? This cannot be undone.')" title="Delete All Readings & Usages"><i class="fas fa-eraser"></i></button>
+                                    </form>
+                                    <form method="POST" action="{{ route('tandons.pump-on', $tandon) }}" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm {{ $tandon->pump_status === 1 ? 'btn-danger' : 'btn-success' }}" onclick="return confirm('{{ $tandon->pump_status === 1 ? 'Turn OFF' : 'Turn ON' }} pump for this water tank?')" title="{{ $tandon->pump_status === 1 ? 'Turn Pump OFF' : 'Turn Pump ON' }}"><i class="fas fa-power-off"></i></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8">
+                                <x-ui.empty-state icon="fa-inbox" title="No water tanks found" message="Add your first water tank to start monitoring.">
+                                    <a href="{{ route('tandons.create') }}" class="btn wm-btn wm-btn--primary">Create Water Tank</a>
+                                </x-ui.empty-state>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </x-ui.data-table>
+
+            <x-ui.pagination-controls :paginator="$tandons" />
+        </x-ui.card>
     </div>
-
-    <!-- Main Content -->
-    <div class="container mb-5">
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-triangle me-2"></i>{{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-
-        <div class="row mb-3">
-            <div class="col-md-12 text-end">
-                <a href="{{ route('tandons.create') }}" class="btn btn-primary btn-lg">
-                    <i class="fas fa-plus-circle"></i> Add New Water Tank
-                </a>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th class="px-4 py-3">Name</th>
-                                <th class="px-4 py-3">Type</th>
-                                <th class="px-4 py-3">Building</th>
-                                <th class="px-4 py-3">Area (m²)</th>
-                                <th class="px-4 py-3">Parent</th>
-                                <th class="px-4 py-3 text-center">Pump Status</th>
-                                <th class="px-4 py-3 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($tandons as $tandon)
-                                <tr>
-                                    <td class="px-4 py-3">
-                                        <strong>{{ $tandon->name }}</strong>
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <span class="badge bg-secondary">{{ $tandon->type }}</span>
-                                    </td>
-                                    <td class="px-4 py-3">{{ $tandon->building_name ?? '-' }}</td>
-                                    <td class="px-4 py-3">{{ $tandon->cross_section_area !== null ? num_id($tandon->cross_section_area) : '-' }}</td>
-                                    <td class="px-4 py-3">{{ $tandon->parent->name ?? '-' }}</td>
-                                    <td class="px-4 py-3 text-center">
-                                        @if($tandon->pump_status === 1)
-                                            <span class="badge bg-success">ON</span>
-                                        @elseif($tandon->pump_status === 0)
-                                            <span class="badge bg-secondary">OFF</span>
-                                        @else
-                                            <span class="badge bg-light text-dark border">UNKNOWN</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-4 py-3 text-center">
-                                        <div class="btn-group" role="group">
-                                            <a href="{{ route('tandon-readings.index', $tandon) }}" class="btn btn-action btn-readings" title="View Readings">
-                                                <i class="fas fa-chart-line"></i>
-                                            </a>
-                                            <a href="{{ route('tandons.show', $tandon) }}" class="btn btn-action btn-view" title="View">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="{{ route('tandons.edit', $tandon) }}" class="btn btn-action btn-edit" title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <form method="POST" action="{{ route('tandons.destroy', $tandon) }}" class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-action btn-delete" onclick="return confirm('Are you sure you want to delete this water tank?')" title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                            <form method="POST" action="{{ route('tandons.truncate-data', $tandon) }}" class="d-inline ms-1">
-                                                @csrf
-                                                <button type="submit" class="btn btn-action btn-warning" onclick="return confirm('Are you sure you want to delete ALL readings and usages for this tank? This cannot be undone.')" title="Delete All Readings & Usages">
-                                                    <i class="fas fa-eraser"></i>
-                                                </button>
-                                            </form>
-                                            <form method="POST" action="{{ route('tandons.pump-on', $tandon) }}" class="d-inline ms-1">
-                                                @csrf
-                                                <button
-                                                    type="submit"
-                                                    class="btn btn-action {{ $tandon->pump_status === 1 ? 'btn-pump-off' : 'btn-pump-on' }}"
-                                                    onclick="return confirm('{{ $tandon->pump_status === 1 ? 'Turn OFF' : 'Turn ON' }} pump for this water tank?')"
-                                                    title="{{ $tandon->pump_status === 1 ? 'Turn Pump OFF' : 'Turn Pump ON' }}"
-                                                >
-                                                    <i class="fas fa-power-off"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="px-4 py-5 text-center text-muted">
-                                        <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
-                                        <p class="mb-0">No water tanks found. Click "Add New Water Tank" to get started.</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        @if($tandons->hasPages())
-            <div class="mt-4">
-                {{ $tandons->links() }}
-            </div>
-        @endif
-    </div>
-
-    <style>
-        .btn-action {
-            padding: 0.5rem 0.75rem;
-            font-size: 0.875rem;
-            border-radius: 0.25rem;
-            border: none;
-        }
-
-        .btn-view {
-            background-color: #17a2b8;
-            color: white;
-        }
-
-        .btn-view:hover {
-            background-color: #138496;
-            color: white;
-        }
-
-        .btn-edit {
-            background-color: #ffc800;
-            color: #000;
-        }
-
-        .btn-edit:hover {
-            background-color: #e6b400;
-            color: #000;
-        }
-
-        .btn-delete {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .btn-delete:hover {
-            background-color: #c82333;
-            color: white;
-        }
-
-        .btn-readings {
-            background-color: #17a2b8;
-            color: white;
-        }
-
-        .btn-readings:hover {
-            background-color: #138496;
-            color: white;
-        }
-
-        .btn-pump-on {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .btn-pump-on:hover {
-            background-color: #218838;
-            color: white;
-        }
-
-        .btn-pump-off {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .btn-pump-off:hover {
-            background-color: #c82333;
-            color: white;
-        }
-    </style>
 @endsection

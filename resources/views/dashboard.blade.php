@@ -3,177 +3,107 @@
 @section('title', 'Dashboard')
 
 @section('content')
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="container">
-            <h1><i class="fas fa-chart-pie"></i> Water Usage Dashboard</h1>
-            <p class="lead mb-0">Real-time monitoring of water usage across all water tanks</p>
-        </div>
-    </div>
+    <x-ui.page-header
+        title="Water Usage Dashboard"
+        subtitle="Real-time monitoring of water usage across all water tanks"
+        icon="fa-chart-pie"
+    />
 
-    <!-- Main Content -->
-    <div class="container mb-5">
-        @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-triangle me-2"></i>{{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
+    <div class="container wm-section">
+        @include('layouts.partials.flash-messages')
 
-        <!-- Statistics Cards -->
-        <div class="row mb-4">
-            <div class="col-lg-4 mb-3">
-                <div class="card stats-card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <small class="text-muted d-block"><i class="fas fa-water"></i> Total Water Usage</small>
-                                <h3 class="mb-0 mt-2">{{ number_format($totalUsage, 2, ',', '.') }} <small style="font-size: 0.6em;">m³</small></h3>
-                            </div>
-                            <div style="font-size: 2.5rem; color: #17a2b8; opacity: 0.2;">
-                                <i class="fas fa-liquid"></i>
-                            </div>
-                        </div>
-                        <small class="text-muted d-block mt-2">All-time usage recorded</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-4 mb-3">
-                <div class="card stats-card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <small class="text-muted d-block"><i class="fas fa-calendar-day"></i> Today's Usage</small>
-                                <h3 class="mb-0 mt-2">{{ number_format($todayUsage, 2, ',', '.') }} <small style="font-size: 0.6em;">m³</small></h3>
-                            </div>
-                            <div style="font-size: 2.5rem; color: #ffc800; opacity: 0.2;">
-                                <i class="fas fa-sun"></i>
-                            </div>
-                        </div>
-                        <small class="text-muted d-block mt-2">{{ now()->format('d M Y') }}</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-4 mb-3">
-                <div class="card stats-card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <small class="text-muted d-block"><i class="fas fa-building"></i> Total Water Tanks</small>
-                                <h3 class="mb-0 mt-2">{{ count($tandons) }}</h3>
-                            </div>
-                            <div style="font-size: 2.5rem; color: #28a745; opacity: 0.2;">
-                                <i class="fas fa-cube"></i>
-                            </div>
-                        </div>
-                        <small class="text-muted d-block mt-2">Active water tanks</small>
-                    </div>
-                </div>
-            </div>
+        <div class="wm-stat-grid mb-4">
+            <article class="wm-stat-card">
+                <p class="wm-stat-card__meta">Total Water Usage</p>
+                <p class="wm-stat-card__value">{{ number_format($totalUsage, 2, ',', '.') }} <small>m³</small></p>
+                <p class="wm-stat-card__meta mb-0">All-time usage recorded</p>
+            </article>
+            <article class="wm-stat-card">
+                <p class="wm-stat-card__meta">Today's Usage</p>
+                <p class="wm-stat-card__value">{{ number_format($todayUsage, 2, ',', '.') }} <small>m³</small></p>
+                <p class="wm-stat-card__meta mb-0">{{ now()->format('d M Y') }}</p>
+            </article>
+            <article class="wm-stat-card">
+                <p class="wm-stat-card__meta">Total Water Tanks</p>
+                <p class="wm-stat-card__value">{{ count($tandons) }}</p>
+                <p class="wm-stat-card__meta mb-0">Active water tanks</p>
+            </article>
         </div>
 
-        <!-- Water Tank Usage Cards -->
-        <div class="card mb-4">
-            <div class="card-header bg-light border-bottom">
-                <h5 class="mb-0"><i class="fas fa-list"></i> Water Usage by Water Tank (This Month)</h5>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr style="background-color: #212529;">
-                                <th class="px-4 py-3" style="color: #ffc800;">Water Tank Name</th>
-                                <th class="px-4 py-3" style="color: #ffc800;">Type</th>
-                                <th class="px-4 py-3" style="color: #ffc800;">Building</th>
-                                <th class="px-4 py-3 text-center" style="color: #ffc800;">Level (%)</th>
-                                <th class="px-4 py-3 text-center" style="color: #ffc800;">Pump</th>
-                                <th class="px-4 py-3 text-end" style="color: #ffc800;">This Month (m³)</th>
-                                <th class="px-4 py-3 text-end" style="color: #ffc800;">Total Usage (m³)</th>
-                                <th class="px-4 py-3 text-center" style="color: #ffc800;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($tandonUsage as $usage)
-                                <tr>
-                                    <td class="px-4 py-3">
-                                        <strong>{{ $usage['tandon']->name }}</strong>
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <span class="badge bg-secondary">{{ $usage['tandon']->type }}</span>
-                                    </td>
-                                    <td class="px-4 py-3">{{ $usage['tandon']->building_name ?? '-' }}</td>
-                                    <td class="px-4 py-3 text-center">
-                                        @if($usage['height_percent'] !== null)
-                                            <div class="speedometer-wrapper">
-                                                <svg class="tube-svg" width="40" height="70" viewBox="0 0 40 70">
-                                                    <rect x="10" y="5" width="20" height="60" rx="10" fill="#e9ecef" stroke="#ffc800" stroke-width="2" />
-                                                    @php
-                                                        $fillHeight = round(60 * ($usage['height_percent'] / 100));
-                                                        $yFill = 65 - $fillHeight;
-                                                    @endphp
-                                                    <rect x="10" y="{{ $yFill }}" width="20" height="{{ $fillHeight }}" rx="10" fill="#2196f3" opacity="0.7" />
-                                                </svg>
-                                                <div style="font-size: 0.9em; color: #28a745; font-weight: bold;">{{ $usage['height_percent'] }}%</div>
-                                                <div style="font-size: 0.8em; color: #6c757d;">{{ $usage['water_height'] }} m</div>
-                                            </div>
-                                        @else
-                                            <span class="text-muted small">No data</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-4 py-3 text-center">
-                                        @if($usage['tandon']->pump_status === 1)
-                                            <span class="badge bg-success">ON</span>
-                                        @elseif($usage['tandon']->pump_status === 0)
-                                            <span class="badge bg-secondary">OFF</span>
-                                        @else
-                                            <span class="badge bg-light text-dark border">UNKNOWN</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-4 py-3 text-end">
-                                        <strong>{{ number_format($usage['this_month'], 2, ',', '.') }}</strong>
-                                    </td>
-                                    <td class="px-4 py-3 text-end">
-                                        <strong>{{ number_format($usage['total_usage'], 2, ',', '.') }}</strong>
-                                    </td>
-                                    <td class="px-4 py-3 text-center">
-                                        <div class="btn-group" role="group">
-                                            <form method="POST" action="{{ route('tandons.pump-on', $usage['tandon']) }}" class="d-inline">
-                                                @csrf
-                                                <button
-                                                    type="submit"
-                                                    class="btn btn-action {{ $usage['tandon']->pump_status === 1 ? 'btn-pump-off' : 'btn-pump-on' }}"
-                                                    title="{{ $usage['tandon']->pump_status === 1 ? 'Turn Pump OFF' : 'Turn Pump ON' }}"
-                                                    onclick="return confirm('{{ $usage['tandon']->pump_status === 1 ? 'Turn OFF' : 'Turn ON' }} pump for this water tank?')"
-                                                >
-                                                    <i class="fas fa-power-off"></i>
-                                                </button>
-                                            </form>
-                                            <a href="{{ route('tandon-readings.index', $usage['tandon']) }}" class="btn btn-action btn-readings" title="View Readings">
-                                                <i class="fas fa-chart-line"></i>
-                                            </a>
-                                            <a href="{{ route('tandons.show', $usage['tandon']) }}" class="btn btn-action btn-view" title="View Details">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="px-4 py-5 text-center text-muted">
-                                        <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
-                                        <p class="mb-0">No water tanks available. <a href="{{ route('tandons.index') }}">Create a water tank</a> to get started.</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+        <x-ui.card title="Water Usage by Water Tank (This Month)" icon="fa-list" class="mb-4">
+            <x-ui.data-table id="dashboard-tandon-usage">
+                <thead>
+                    <tr>
+                        <th>Water Tank Name</th>
+                        <th>Type</th>
+                        <th>Building</th>
+                        <th class="text-center">Level (%)</th>
+                        <th class="text-center">Pump</th>
+                        <th class="text-end">This Month (m³)</th>
+                        <th class="text-end">Total Usage (m³)</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($tandonUsage as $usage)
+                        <tr>
+                            <td><strong>{{ $usage['tandon']->name }}</strong></td>
+                            <td><x-ui.status-badge tone="neutral">{{ $usage['tandon']->type }}</x-ui.status-badge></td>
+                            <td>{{ $usage['tandon']->building_name ?? '-' }}</td>
+                            <td class="text-center">
+                                @if($usage['height_percent'] !== null)
+                                    <strong>{{ $usage['height_percent'] }}%</strong>
+                                    <div class="small text-muted">{{ $usage['water_height'] }} m</div>
+                                @else
+                                    <span class="text-muted small">No data</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($usage['tandon']->pump_status === 1)
+                                    <x-ui.status-badge tone="success">ON</x-ui.status-badge>
+                                @elseif($usage['tandon']->pump_status === 0)
+                                    <x-ui.status-badge tone="neutral">OFF</x-ui.status-badge>
+                                @else
+                                    <x-ui.status-badge tone="warning">UNKNOWN</x-ui.status-badge>
+                                @endif
+                            </td>
+                            <td class="text-end"><strong>{{ number_format($usage['this_month'], 2, ',', '.') }}</strong></td>
+                            <td class="text-end"><strong>{{ number_format($usage['total_usage'], 2, ',', '.') }}</strong></td>
+                            <td class="text-center">
+                                <div class="wm-table-actions">
+                                    <form method="POST" action="{{ route('tandons.pump-on', $usage['tandon']) }}">
+                                        @csrf
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm {{ $usage['tandon']->pump_status === 1 ? 'btn-danger' : 'btn-success' }}"
+                                            title="{{ $usage['tandon']->pump_status === 1 ? 'Turn Pump OFF' : 'Turn Pump ON' }}"
+                                            onclick="return confirm('{{ $usage['tandon']->pump_status === 1 ? 'Turn OFF' : 'Turn ON' }} pump for this water tank?')"
+                                        >
+                                            <i class="fas fa-power-off"></i>
+                                        </button>
+                                    </form>
+                                    <a href="{{ route('tandon-readings.index', $usage['tandon']) }}" class="btn btn-sm btn-outline-secondary" title="View Readings">
+                                        <i class="fas fa-chart-line"></i>
+                                    </a>
+                                    <a href="{{ route('tandons.show', $usage['tandon']) }}" class="btn btn-sm btn-outline-info" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8">
+                                <x-ui.empty-state title="No water tanks available" message="Create a water tank to get started." icon="fa-water">
+                                    <a href="{{ route('tandons.index') }}" class="btn wm-btn wm-btn--secondary">Manage Water Tanks</a>
+                                </x-ui.empty-state>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </x-ui.data-table>
+        </x-ui.card>
 
-        <!-- Water Usage History Chart -->
         @php
             $usagesForChart = $recentUsages->sortBy('usage_date')->values();
             $chartDates = $usagesForChart->pluck('usage_date')->map(fn($d) => $d->format('d M Y'))->unique()->values();
@@ -188,292 +118,99 @@
                 }
                 $color = $chartPalette[$i % count($chartPalette)];
                 $chartDatasets[] = [
-                    'label'           => $tandonName,
-                    'data'            => $dataPoints,
+                    'label' => $tandonName,
+                    'data' => $dataPoints,
                     'backgroundColor' => $color . 'aa',
-                    'borderColor'     => $color,
-                    'borderWidth'     => 1.5,
+                    'borderColor' => $color,
+                    'borderWidth' => 1.5,
                 ];
             }
         @endphp
 
-        <div class="card mb-4">
-            <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Water Usage History Chart</h5>
-                <small class="text-muted">Last {{ $usagesForChart->count() }} record(s), grouped by date</small>
-            </div>
-            <div class="card-body">
-                @if($usagesForChart->isNotEmpty())
-                    <div style="height: 300px;">
-                        <canvas id="usageHistoryChart"></canvas>
-                    </div>
-                    {{-- Chart Legend --}}
-                    <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
-                        <span class="fw-semibold text-muted me-2">Legend:</span>
-                        @foreach($chartTandonNames as $i => $tandonName)
-                            @php $legendColor = $chartPalette[$i % count($chartPalette)]; @endphp
-                            <span class="usage-legend-dot" style="background-color: {{ $legendColor }};"></span>
-                            <span class="usage-legend-text">{{ $tandonName }}</span>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="text-center text-muted py-3">
-                        <i class="fas fa-chart-bar fa-2x mb-2 d-block"></i>
-                        No usage records to display.
-                    </div>
-                @endif
-            </div>
-        </div>
-
-        <!-- Recent Water Usages -->
-        <div class="row">
+        <div class="row g-4">
             <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header bg-light border-bottom">
-                        <h5 class="mb-0"><i class="fas fa-history"></i> Recent Water Usage Records</h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead>
-                                    <tr style="background-color: #212529;">
-                                        <th class="px-4 py-3" style="color: #ffc800;">Date</th>
-                                        <th class="px-4 py-3" style="color: #ffc800;">Water Tank</th>
-                                        <th class="px-4 py-3 text-end" style="color: #ffc800;">Volume Used (L)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($recentUsages as $usage)
-                                        <tr>
-                                            <td class="px-4 py-3">
-                                                <strong>{{ $usage->usage_date->format('d M Y') }}</strong>
-                                            </td>
-                                            <td class="px-4 py-3">
-                                                <a href="{{ route('tandons.show', $usage->tandon) }}" class="text-decoration-none">
-                                                    {{ $usage->tandon->name }}
-                                                </a>
-                                            </td>
-                                            <td class="px-4 py-3 text-end">
-                                                <strong>@num($usage->volume_used * 1000)</strong>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="3" class="px-4 py-5 text-center text-muted">
-                                                No water usage records yet
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                <x-ui.card title="Recent Water Usage Records" icon="fa-history" class="h-100">
+                    <x-ui.data-table id="dashboard-recent-usage">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Water Tank</th>
+                                <th class="text-end">Volume Used (L)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($recentUsages as $usage)
+                                <tr>
+                                    <td><strong>{{ $usage->usage_date->format('d M Y') }}</strong></td>
+                                    <td><a href="{{ route('tandons.show', $usage->tandon) }}">{{ $usage->tandon->name }}</a></td>
+                                    <td class="text-end"><strong>@num($usage->volume_used * 1000)</strong></td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3">
+                                        <x-ui.empty-state title="No usage records yet" message="Water usage history will appear here once readings are captured." />
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </x-ui.data-table>
+                </x-ui.card>
             </div>
 
-            <!-- Quick Actions -->
             <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-header bg-light border-bottom">
-                        <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
+                <x-ui.card title="Quick Actions" icon="fa-bolt" class="mb-4">
+                    <div class="d-grid gap-2">
+                        <a href="{{ route('tandons.index') }}" class="btn wm-btn wm-btn--primary">Manage Water Tanks</a>
+                        <a href="{{ route('tandons.create') }}" class="btn wm-btn wm-btn--secondary">Add New Water Tank</a>
                     </div>
-                    <div class="card-body">
-                        <a href="{{ route('tandons.index') }}" class="btn btn-primary w-100 mb-2">
-                            <i class="fas fa-water"></i> Manage Water Tanks
-                        </a>
-                        <a href="{{ route('tandons.create') }}" class="btn btn-success w-100 mb-2">
-                            <i class="fas fa-plus-circle"></i> Add New Water Tank
-                        </a>
-                        <hr>
-                        <p class="small text-muted mb-2"><i class="fas fa-info-circle"></i> Dashboard Information</p>
-                        <div class="alert alert-info small mb-0">
-                            <strong>Current System Status:</strong> All systems operational
+                </x-ui.card>
+
+                <x-ui.card title="Water Usage History Chart" icon="fa-chart-column" subtitle="Last {{ $usagesForChart->count() }} record(s)">
+                    @if($usagesForChart->isNotEmpty())
+                        <div style="height: 300px;">
+                            <canvas id="usageHistoryChart"></canvas>
                         </div>
-                    </div>
-                </div>
+                    @else
+                        <x-ui.empty-state icon="fa-chart-bar" title="No chart data" message="No usage records to visualize yet." />
+                    @endif
+                </x-ui.card>
             </div>
         </div>
     </div>
-
-    <style>
-                        .tube-wrapper {
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            margin-top: 0.5em;
-                        }
-                        .tube-svg {
-                            margin-bottom: 0.2em;
-                        }
-                .speedometer-wrapper {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    margin-top: 0.5em;
-                }
-                .speedometer {
-                    margin-bottom: 0.2em;
-                }
-        .page-header {
-            background: linear-gradient(135deg, #212529 0%, #343a40 100%);
-            color: white;
-            padding: 3rem 0;
-            margin-bottom: 2rem;
-        }
-
-        .page-header h1 {
-            font-family: "Montserrat", sans-serif;
-            font-weight: 700;
-            font-size: 2.5rem;
-        }
-
-        .stats-card {
-            border: none;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            border-radius: 0.5rem;
-            border-left: 4px solid #ffc800;
-        }
-
-        .stats-card .card-body {
-            padding: 1.5rem;
-        }
-
-        .btn-action {
-            padding: 0.5rem 0.75rem;
-            font-size: 0.875rem;
-            border-radius: 0.25rem;
-            border: none;
-        }
-
-        .btn-view {
-            background-color: #17a2b8;
-            color: white;
-        }
-
-        .btn-view:hover {
-            background-color: #138496;
-            color: white;
-        }
-
-        .btn-readings {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        .btn-readings:hover {
-            background-color: #5a6268;
-            color: white;
-        }
-
-        .btn-pump-on {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .btn-pump-on:hover {
-            background-color: #218838;
-            color: white;
-        }
-
-        .btn-pump-off {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .btn-pump-off:hover {
-            background-color: #c82333;
-            color: white;
-        }
-
-        .btn-primary {
-            background-color: #ffc800;
-            border-color: #ffc800;
-            color: #000;
-            font-weight: 700;
-            font-family: "Montserrat", sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-primary:hover {
-            background-color: #e6b400;
-            border-color: #e6b400;
-            color: #000;
-        }
-
-        .btn-success {
-            background-color: #28a745;
-            border-color: #28a745;
-            font-weight: 600;
-        }
-
-        .btn-success:hover {
-            background-color: #218838;
-            border-color: #218838;
-        }
-
-        .card {
-            border: none;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            border-radius: 0.5rem;
-        }
-
-        .table thead th {
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .usage-legend-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 999px;
-            display: inline-block;
-            flex-shrink: 0;
-        }
-
-        .usage-legend-text {
-            font-size: 0.875rem;
-            color: #6c757d;
-            margin-right: 0.75rem;
-        }
-    </style>
 @endsection
 
 @section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-<script>
-    (function () {
-        const labels   = @json($chartDates);
-        const datasets = @json($chartDatasets);
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script>
+        (function () {
+            const labels = @json($chartDates);
+            const datasets = @json($chartDatasets);
 
-        if (!labels.length) return;
+            if (!labels.length) return;
 
-        new Chart(document.getElementById('usageHistoryChart'), {
-            type: 'bar',
-            data: { labels, datasets },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => ` ${ctx.dataset.label}: ${ctx.formattedValue} L`
+            new Chart(document.getElementById('usageHistoryChart'), {
+                type: 'bar',
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ` ${ctx.dataset.label}: ${ctx.formattedValue} L`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Volume Used (L)' }
                         }
                     }
-                },
-                scales: {
-                    x: {
-                        stacked: false,
-                        ticks: { maxRotation: 35, minRotation: 15 }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        title: { display: true, text: 'Volume Used (L)' }
-                    }
                 }
-            }
-        });
-    })();
-</script>
+            });
+        })();
+    </script>
 @endsection

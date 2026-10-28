@@ -3,50 +3,28 @@
 @section('title', $tandon->name . ' - Readings')
 
 @section('content')
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="container">
-            <h1><i class="fas fa-chart-line"></i> {{ $tandon->name }} - Water Readings</h1>
-            <p class="lead mb-0">Historical water level and volume measurements</p>
-        </div>
-    </div>
+    <x-ui.page-header
+        :title="$tandon->name . ' - Water Readings'"
+        subtitle="Historical water level and volume measurements"
+        icon="fa-chart-line"
+    >
+        <a href="{{ route('tandon-readings.create', $tandon) }}" class="btn wm-btn wm-btn--primary">
+            <i class="fas fa-plus-circle"></i>
+            Add Reading
+        </a>
+        <a href="{{ route('tandons.index') }}" class="btn wm-btn wm-btn--secondary">
+            <i class="fas fa-arrow-left"></i>
+            Back to Water Tanks
+        </a>
+    </x-ui.page-header>
 
-    <!-- Main Content -->
-    <div class="container mb-5">
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
+    <div class="container wm-section">
+        @include('layouts.partials.flash-messages')
 
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <div class="card bg-light">
-                    <div class="card-body">
-                        <small class="text-muted d-block"><i class="fas fa-water"></i> Water Tank Information</small>
-                        <h5 class="mb-0">{{ $tandon->name }}</h5>
-                        <small class="text-muted">
-                            Type: <strong>{{ $tandon->type }}</strong> | 
-                            Area: <strong>@num($tandon->cross_section_area) m²</strong>
-                        </small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="text-end">
-                    <button type="button" id="deleteSelectedBtn" class="btn btn-danger" style="display: none;" onclick="deleteSelected()">
-                        <i class="fas fa-trash-alt"></i> Delete Selected (<span id="selectedCount">0</span>)
-                    </button>
-                    <a href="{{ route('tandon-readings.create', $tandon) }}" class="btn btn-primary">
-                        <i class="fas fa-plus-circle"></i> Add Reading
-                    </a>
-                    <a href="{{ route('tandons.index') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Back to Water Tanks List
-                    </a>
-                </div>
-            </div>
-        </div>
+        <x-ui.card title="Water Tank Information" icon="fa-water" class="mb-4">
+            <p class="mb-1"><strong>{{ $tandon->name }}</strong></p>
+            <p class="mb-0 text-muted">Type: <strong>{{ $tandon->type }}</strong> | Area: <strong>@num($tandon->cross_section_area) m²</strong></p>
+        </x-ui.card>
 
         @php
             $chartReadings = $readings->getCollection()->sortBy('recorded_at')->values();
@@ -55,145 +33,82 @@
             $chartVolumes = $chartReadings->map(fn ($reading) => round($reading->water_volume * 1000, 2));
         @endphp
 
-        <div class="card mb-3">
-            <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-chart-line"></i> Readings History Chart</h5>
-                <small class="text-muted">Showing {{ $chartReadings->count() }} point(s) from current page</small>
-            </div>
-            <div class="card-body">
-                @if($chartReadings->isNotEmpty())
-                    <div class="chart-wrapper">
-                        <canvas id="readingsHistoryChart"></canvas>
-                    </div>
-                    <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
-                        <span class="fw-semibold text-muted me-2">Chart Legend:</span>
-                        <span class="legend-dot legend-height"></span>
-                        <span class="legend-text">Water Height (m)</span>
-                        <span class="legend-dot legend-volume"></span>
-                        <span class="legend-text">Water Volume (L)</span>
-                        <span class="legend-line legend-warning"></span>
-                        <span class="legend-text">Warning Threshold</span>
-                        <span class="legend-line legend-min"></span>
-                        <span class="legend-text">Minimum Threshold</span>
-                        <span class="legend-line legend-max"></span>
-                        <span class="legend-text">Maximum Threshold</span>
-                    </div>
-                @else
-                    <div class="text-center text-muted py-3">
-                        <i class="fas fa-chart-line fa-2x mb-2 d-block"></i>
-                        No data available for chart.
-                    </div>
-                @endif
-            </div>
-        </div>
+        <x-ui.card title="Readings History Chart" icon="fa-chart-line" subtitle="Showing {{ $chartReadings->count() }} point(s) from current page" class="mb-4">
+            @if($chartReadings->isNotEmpty())
+                <div style="height: 320px;"><canvas id="readingsHistoryChart"></canvas></div>
+            @else
+                <x-ui.empty-state icon="fa-chart-line" title="No data available for chart" />
+            @endif
+        </x-ui.card>
 
-        <div class="card border-0 shadow-sm mb-3">
-            <div class="card-body py-3">
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                    <span class="fw-semibold text-muted me-2">Readings Legend:</span>
-                    <span class="badge bg-success">Normal</span>
-                    <span class="legend-text">Between warning and max thresholds</span>
-                    <span class="badge bg-warning text-dark">Warning</span>
-                    <span class="legend-text">Between minimum and warning thresholds</span>
-                    <span class="badge bg-danger">Low</span>
-                    <span class="legend-text">At or below minimum threshold</span>
-                    <span class="badge bg-danger">High</span>
-                    <span class="legend-text">At or above maximum threshold</span>
-                </div>
-            </div>
-        </div>
+        <x-ui.card title="Readings Log" icon="fa-table-list">
+            <x-ui.data-table
+                id="readings-table"
+                :bulk-action="route('tandon-readings.bulk-destroy', $tandon)"
+                :bulk-actions="['delete' => 'Delete selected']"
+                select-name="reading_ids[]"
+            >
+                <thead>
+                    <tr>
+                        <th style="width: 48px;"><input type="checkbox" data-master-select></th>
+                        <th>Recorded At</th>
+                        <th>Water Height</th>
+                        <th>Water Volume</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($readings as $reading)
+                        <tr>
+                            <td><input type="checkbox" data-row-select value="{{ $reading->id }}"></td>
+                            <td><strong>{{ $reading->recorded_at->format('d M Y, H:i') }}</strong></td>
+                            <td>@num($reading->water_height) m</td>
+                            <td>@num($reading->water_volume * 1000) L</td>
+                            <td>
+                                @if($reading->water_height >= $tandon->height_max)
+                                    <x-ui.status-badge tone="danger">High</x-ui.status-badge>
+                                @elseif($reading->water_height <= $tandon->height_warning && $reading->water_height > $tandon->height_min)
+                                    <x-ui.status-badge tone="warning">Warning</x-ui.status-badge>
+                                @elseif($reading->water_height <= $tandon->height_min)
+                                    <x-ui.status-badge tone="danger">Low</x-ui.status-badge>
+                                @else
+                                    <x-ui.status-badge tone="success">Normal</x-ui.status-badge>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <div class="wm-table-actions justify-content-center">
+                                    <a href="{{ route('tandon-readings.show', [$tandon, $reading]) }}" class="btn btn-sm btn-outline-info" title="View Details"><i class="fas fa-eye"></i></a>
+                                    <form method="POST" action="{{ route('tandon-readings.destroy', [$tandon, $reading]) }}" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this reading?')" title="Delete"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6"><x-ui.empty-state title="No readings found" message="Add a reading to record the first measurement." /></td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </x-ui.data-table>
 
-        <div class="card">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th class="px-4 py-3" style="width: 50px;">
-                                    <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">
-                                </th>
-                                <th class="px-4 py-3">Recorded At</th>
-                                <th class="px-4 py-3">Water Height</th>
-                                <th class="px-4 py-3">Water Volume</th>
-                                <th class="px-4 py-3">Status</th>
-                                <th class="px-4 py-3 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($readings as $reading)
-                                <tr>
-                                    <td class="px-4 py-3 text-center">
-                                        <input type="checkbox" class="reading-checkbox" value="{{ $reading->id }}" onclick="updateSelectedCount()">
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <strong>{{ $reading->recorded_at->format('d M Y, H:i') }}</strong>
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        @num($reading->water_height) m
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        @num($reading->water_volume * 1000) L
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        @if($reading->water_height >= $tandon->height_max)
-                                            <span class="badge bg-danger">High</span>
-                                        @elseif($reading->water_height <= $tandon->height_warning && $reading->water_height > $tandon->height_min)
-                                            <span class="badge bg-warning text-dark">Warning</span>
-                                        @elseif($reading->water_height <= $tandon->height_min)
-                                            <span class="badge bg-danger">Low</span>
-                                        @else
-                                            <span class="badge bg-success">Normal</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-4 py-3 text-center">
-                                        <div class="btn-group" role="group">
-                                            <a href="{{ route('tandon-readings.show', [$tandon, $reading]) }}" class="btn btn-action btn-view" title="View Details">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <form method="POST" action="{{ route('tandon-readings.destroy', [$tandon, $reading]) }}" class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-action btn-delete" onclick="return confirm('Are you sure you want to delete this reading?')" title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="px-4 py-5 text-center text-muted">
-                                        <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
-                                        <p class="mb-0">No readings found. Click "Add Reading" to record the first measurement.</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        @if($readings->hasPages())
-            <div class="d-flex justify-content-center mt-4">
-                {{ $readings->links() }}
-            </div>
-        @endif
+            <x-ui.pagination-controls :paginator="$readings" />
+        </x-ui.card>
     </div>
+@endsection
 
-    <!-- Bootstrap core JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+@section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-
     <script>
         const chartLabels = @json($chartLabels);
         const chartHeights = @json($chartHeights);
         const chartVolumes = @json($chartVolumes);
 
         if (chartLabels.length > 0) {
-            const ctx = document.getElementById('readingsHistoryChart');
-
-            new Chart(ctx, {
+            new Chart(document.getElementById('readingsHistoryChart'), {
                 type: 'line',
                 data: {
                     labels: chartLabels,
@@ -252,177 +167,23 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { display: false } },
                     scales: {
                         yHeight: {
                             type: 'linear',
                             position: 'left',
-                            title: {
-                                display: true,
-                                text: 'Height (m)'
-                            }
+                            title: { display: true, text: 'Height (m)' }
                         },
                         yVolume: {
                             type: 'linear',
                             position: 'right',
-                            title: {
-                                display: true,
-                                text: 'Volume (L)'
-                            },
-                            grid: {
-                                drawOnChartArea: false
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                maxRotation: 45,
-                                minRotation: 25
-                            }
+                            title: { display: true, text: 'Volume (L)' },
+                            grid: { drawOnChartArea: false }
                         }
                     }
                 }
             });
         }
-
-        function toggleSelectAll(checkbox) {
-            const checkboxes = document.querySelectorAll('.reading-checkbox');
-            checkboxes.forEach(cb => cb.checked = checkbox.checked);
-            updateSelectedCount();
-        }
-
-        function updateSelectedCount() {
-            const checkboxes = document.querySelectorAll('.reading-checkbox:checked');
-            const count = checkboxes.length;
-            const deleteBtn = document.getElementById('deleteSelectedBtn');
-            const countSpan = document.getElementById('selectedCount');
-            const selectAllCheckbox = document.getElementById('selectAll');
-            
-            countSpan.textContent = count;
-            deleteBtn.style.display = count > 0 ? 'inline-block' : 'none';
-            
-            // Update select all checkbox state
-            const allCheckboxes = document.querySelectorAll('.reading-checkbox');
-            selectAllCheckbox.checked = allCheckboxes.length > 0 && count === allCheckboxes.length;
-            selectAllCheckbox.indeterminate = count > 0 && count < allCheckboxes.length;
-        }
-
-        function deleteSelected() {
-            const checkboxes = document.querySelectorAll('.reading-checkbox:checked');
-            const ids = Array.from(checkboxes).map(cb => cb.value);
-            
-            if (ids.length === 0) {
-                alert('Please select at least one reading to delete.');
-                return;
-            }
-            
-            if (!confirm(`Are you sure you want to delete ${ids.length} reading(s)?`)) {
-                return;
-            }
-            
-            // Create form and submit
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '{{ route('tandon-readings.bulk-destroy', $tandon) }}';
-            
-            // Add CSRF token
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = '_token';
-            csrfInput.value = '{{ csrf_token() }}';
-            form.appendChild(csrfInput);
-            
-            // Add reading IDs
-            ids.forEach(id => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'reading_ids[]';
-                input.value = id;
-                form.appendChild(input);
-            });
-            
-            document.body.appendChild(form);
-            form.submit();
-        }
     </script>
-
-    <style>
-        .btn-action {
-            padding: 0.5rem 0.75rem;
-            font-size: 0.875rem;
-            border-radius: 0.25rem;
-            border: none;
-        }
-
-        .btn-view {
-            background-color: #17a2b8;
-            color: white;
-        }
-
-        .btn-view:hover {
-            background-color: #138496;
-            color: white;
-        }
-
-        .btn-delete {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .btn-delete:hover {
-            background-color: #c82333;
-            color: white;
-        }
-
-        .legend-text {
-            font-size: 0.875rem;
-            color: #6c757d;
-            margin-right: 0.75rem;
-        }
-
-        .chart-wrapper {
-            height: 320px;
-        }
-
-        .legend-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 999px;
-            display: inline-block;
-        }
-
-        .legend-height {
-            background-color: #0d6efd;
-        }
-
-        .legend-volume {
-            background-color: #198754;
-        }
-
-        .legend-line {
-            width: 18px;
-            border-top-width: 2px;
-            border-top-style: dashed;
-            display: inline-block;
-        }
-
-        .legend-warning {
-            border-top-color: #ffc107;
-        }
-
-        .legend-min {
-            border-top-color: #dc3545;
-        }
-
-        .legend-max {
-            border-top-color: #6610f2;
-        }
-    </style>
 @endsection
