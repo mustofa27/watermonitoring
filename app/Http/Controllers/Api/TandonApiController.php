@@ -9,8 +9,11 @@ use Illuminate\Http\JsonResponse;
 class TandonApiController extends Controller
 {
     /**
-     * Get tandon details by name
-     * 
+     * Get tandon config by name for edge devices.
+     *
+     * Device computes: water_height = height_max - (measured_distance - sensor_distance_full).
+     * sensor_distance_full is null until it has been set on the tank.
+     *
      * @param string $name
      * @return JsonResponse
      */
@@ -32,6 +35,7 @@ class TandonApiController extends Controller
                 'height_max' => (float) $tandon->height_max,
                 'height_warning' => (float) $tandon->height_warning,
                 'height_min' => (float) $tandon->height_min,
+                'sensor_distance_full' => $tandon->sensor_distance_full !== null ? (float) $tandon->sensor_distance_full : null,
             ],
         ]);
     }

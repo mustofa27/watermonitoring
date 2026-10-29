@@ -17,6 +17,7 @@ class Tandon extends Model
         'height_max',
         'height_min',
         'height_warning',
+        'sensor_distance_full',
         'pump_status',
     ];
 
@@ -25,6 +26,7 @@ class Tandon extends Model
         'height_max' => 'decimal:3',
         'height_min' => 'decimal:3',
         'height_warning' => 'decimal:3',
+        'sensor_distance_full' => 'decimal:3',
         'pump_status' => 'integer',
     ];
 

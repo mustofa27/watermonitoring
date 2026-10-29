@@ -67,6 +67,12 @@
                         <label for="height_warning" class="form-label">Warning Height (m)</label>
                         <input type="number" step="0.001" name="height_warning" id="height_warning" value="{{ old('height_warning', $tandon->height_warning) }}" required class="form-control">
                     </div>
+
+                    <div class="wm-form-field--full">
+                        <label for="sensor_distance_full" class="form-label">Sensor Distance When Full (m)</label>
+                        <input type="number" step="0.001" min="0" name="sensor_distance_full" id="sensor_distance_full" value="{{ old('sensor_distance_full', $tandon->sensor_distance_full) }}" class="form-control">
+                        <small class="text-muted d-block mt-1">Distance from the sensor to the water surface when the tank is full. The edge device uses it to compute water height (Max Height - (measured distance - this value)). Leave empty only if the device does not need it.</small>
+                    </div>
                 </div>
 
                 <div class="d-flex justify-content-end gap-2 mt-4">

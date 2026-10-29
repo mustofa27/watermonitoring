@@ -124,6 +124,7 @@ class TandonController extends Controller
             'height_max' => 'required|numeric|min:0',
             'height_min' => 'required|numeric|min:0',
             'height_warning' => 'required|numeric|min:0',
+            'sensor_distance_full' => 'nullable|numeric|min:0',
         ]);
 
         Tandon::create($validated);
@@ -156,6 +157,7 @@ class TandonController extends Controller
             'height_max' => 'required|numeric|min:0',
             'height_min' => 'required|numeric|min:0',
             'height_warning' => 'required|numeric|min:0',
+            'sensor_distance_full' => 'nullable|numeric|min:0',
         ]);
 
         $tandon->update($validated);

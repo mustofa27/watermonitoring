@@ -31,6 +31,7 @@
                 <div class="wm-detail-item"><p class="wm-detail-item__label">Max Height</p><p class="wm-detail-item__value">@num($tandon->height_max) m</p></div>
                 <div class="wm-detail-item"><p class="wm-detail-item__label">Min Height</p><p class="wm-detail-item__value">@num($tandon->height_min) m</p></div>
                 <div class="wm-detail-item"><p class="wm-detail-item__label">Warning Height</p><p class="wm-detail-item__value">@num($tandon->height_warning) m</p></div>
+                <div class="wm-detail-item"><p class="wm-detail-item__label">Sensor Distance When Full</p><p class="wm-detail-item__value">{{ $tandon->sensor_distance_full !== null ? num_id($tandon->sensor_distance_full, 3).' m' : '-' }}</p></div>
                 <div class="wm-detail-item"><p class="wm-detail-item__label">Created At</p><p class="wm-detail-item__value">{{ $tandon->created_at->format('d M Y, H:i') }}</p></div>
                 <div class="wm-detail-item"><p class="wm-detail-item__label">Updated At</p><p class="wm-detail-item__value">{{ $tandon->updated_at->format('d M Y, H:i') }}</p></div>
             </div>
